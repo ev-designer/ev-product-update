@@ -116,22 +116,15 @@
             <div class="px-8 py-4">
                 <div class="flex items-center justify-between mb-4">
                     <h1 class="text-2xl font-bold text-gray-800">Inventory Management</h1>
-
-                    <!-- Action Button (Dynamic Label) -->
-                    <button id="add-btn"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-500 hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors">
-                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                        <span id="add-btn-text">Add Item</span>
-                    </button>
                 </div>
 
                 <!-- Tabs -->
                 <div class="flex space-x-8 border-b border-gray-200">
                     <button
-                        class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
+                        class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-brand-600 border-brand-500"
                         data-tab="categories">Item Groups</button>
                     <button
-                        class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-brand-600 border-brand-500"
+                        class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
                         data-tab="items">Items</button>
                     <button
                         class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
@@ -147,16 +140,12 @@
             <!-- Content Views -->
 
             <!-- 1. Categories View -->
-            <div id="categories-view" class="view-section hidden fade-in space-y-6">
+            <div id="categories-view" class="view-section fade-in space-y-6">
 
-                <!-- Custom Header for Categories -->
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800">Item Groups</h2>
-                        <p class="text-gray-500 mt-1">Manage your menu categories and grouping.</p>
-                    </div>
+                <!-- Custom Header for Categories REMOVED -->
+                <div class="flex items-center justify-end">
                     <button id="categories-add-btn"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors mb-4">
                         <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
                         Add Group
                     </button>
@@ -201,14 +190,10 @@
             <!-- 2. Items View -->
             <div id="items-view" class="view-section hidden fade-in space-y-6">
 
-                <!-- Custom Header for Items View -->
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800">Inventory Items</h2>
-                        <p class="text-gray-500 mt-1">Manage all your products, prices, and stock levels.</p>
-                    </div>
+                <!-- Custom Header for Items View REMOVED -->
+                <div class="flex items-center justify-end">
                     <button id="items-add-btn"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors mb-4">
                         <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
                         New Item
                     </button>

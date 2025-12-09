@@ -78,19 +78,81 @@
         <header class="bg-white border-b border-gray-200 sticky top-0 z-10 transition-shadow">
             <div class="px-8 py-4">
                 <h1 class="text-2xl font-bold text-gray-800">Checklist</h1>
+                <!-- Tabs -->
+                <div class="flex space-x-8 border-b border-gray-200 mt-4">
+                    <button data-tab="daily"
+                        class="checklist-tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-brand-600 border-brand-500">
+                        Daily Checklist
+                    </button>
+                    <button data-tab="templates"
+                        class="checklist-tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">
+                        Manage Templates
+                    </button>
+                </div>
             </div>
         </header>
 
-        <div class="p-8">
-            <div class="bg-white rounded-lg shadow p-6">
-                <p class="text-gray-500">Checklist content goes here...</p>
+        <div class="p-8 max-w-[1600px] mx-auto space-y-6">
+
+            <!-- Daily View -->
+            <div id="daily-view" class="bg-white rounded-lg shadow overflow-hidden fade-in">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-lg font-medium text-gray-900">Today's Tasks</h3>
+                    <div class="text-sm text-gray-500">
+                        Date: <span class="font-semibold text-gray-900" id="current-date"></span>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="daily-table" class="min-w-full divide-y divide-gray-200">
+                        <!-- JS Rendered -->
+                    </table>
+                </div>
+            </div>
+
+            <!-- Templates View -->
+            <div id="templates-view" class="hidden fade-in space-y-6">
+                <div class="flex items-center justify-end">
+                    <button onclick="openChecklistModal()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                        New Template
+                    </button>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table id="templates-table" class="min-w-full divide-y divide-gray-200">
+                            <!-- JS Rendered -->
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
+        </div>
+
     </main>
 
+    <!-- Modal Overlay -->
+    <div id="checklist-modal-overlay"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center">
+        <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800" id="checklist-modal-title">Add Template</h3>
+                <button onclick="closeChecklistModal()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <!-- Modal Body -->
+            <div class="p-6" id="checklist-modal-content">
+                <!-- Form injected via JS -->
+            </div>
+        </div>
+    </div>
+
     <script>
-        lucide.createIcons();
+        document.getElementById('current-date').textContent = new Date().toDateString();
     </script>
+    <script src="js/checklist.js"></script>
 </body>
 
 </html>

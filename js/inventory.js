@@ -17,7 +17,7 @@ const store = {
 };
 
 // Current State
-let currentTab = 'items'; // categories, items, stock
+let currentTab = 'categories'; // categories, items, stock
 let searchQuery = '';
 
 // DOM Elements
@@ -59,7 +59,15 @@ const modalClose = document.getElementById('modal-close');
 function init() {
     setupTabs();
     setupSearch();
-    setupUrlHash();
+
+    // Handle URL Hash or Default
+    const hash = window.location.hash.replace('#', '');
+    if (['categories', 'items', 'stock'].includes(hash)) {
+        switchTab(hash);
+    } else {
+        switchTab(currentTab);
+    }
+
     render();
     setupModal();
 }
@@ -161,9 +169,9 @@ function toggleSelectAll(source) {
 function toggleRow(checkbox) {
     const row = checkbox.closest('tr');
     if (checkbox.checked) {
-        row.classList.add('selected');
+        row.classList.add('bg-blue-50');
     } else {
-        row.classList.remove('selected');
+        row.classList.remove('bg-blue-50');
     }
 }
 
