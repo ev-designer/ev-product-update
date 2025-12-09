@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnlightVision - Dashboard Template</title>
+    <script src="js/tailwind.config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            background-color: #fff;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 1.5px solid #4a90e2;
+            border-radius: 4px;
+            /* Exact 4px request */
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .custom-checkbox:checked {
+            background-color: #4a90e2;
+            border-color: #4a90e2;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 10 9 13 14 6'/%3e%3c/svg%3e");
+            background-size: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .custom-checkbox::before {
+            display: none;
+        }
+
+        tr.selected {
+            background-color: rgb(0 0 0 / 0.05) !important;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden text-sm font-sans">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 z-20">
+        <!-- Logo -->
+        <div class="h-16 flex items-center px-6 border-b border-gray-100">
+            <a href="index.html" class="flex items-center gap-2">
+                <div
+                    class="w-8 h-8 bg-gradient-to-tr from-brand-500 to-cyan-400 rounded-lg flex items-center justify-center text-white font-bold">
+                    E</div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-lg text-slate-800 leading-tight">Enlight<span
+                            class="text-brand-500">Vision</span></span>
+                    <span class="text-[10px] text-gray-400 uppercase tracking-widest">Technologies</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Search Sidebar -->
+        <div class="p-4">
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+                <input type="text" placeholder="Search"
+                    class="w-full pl-9 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-500 text-sm">
+                <i data-lucide="x-circle"
+                    class="absolute right-3 top-2.5 w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600"></i>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto px-3 space-y-1">
+            <a href="inventory.html"
+                class="nav-item active flex items-center px-3 py-2.5 rounded-md text-gray-600 group">
+                <i data-lucide="package" class="w-4 h-4 mr-3"></i>
+                Inventory
+            </a>
+            <a href="checklist.html" class="nav-item flex items-center px-3 py-2.5 rounded-md text-gray-600 group">
+                <i data-lucide="clipboard-list" class="w-4 h-4 mr-3"></i>
+                Checklist
+            </a>
+            <a href="timesheet.html" class="nav-item flex items-center px-3 py-2.5 rounded-md text-gray-600 group">
+                <i data-lucide="clock" class="w-4 h-4 mr-3"></i>
+                Timesheet
+            </a>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="border-t border-gray-200 p-4">
+            <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                <img src="https://ui-avatars.com/api/?name=Steven+G&background=0D8ABC&color=fff" alt="User"
+                    class="w-9 h-9 rounded-full border border-gray-200">
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">Steven G.</p>
+                    <p class="text-xs text-gray-500 truncate">Admin</p>
+                </div>
+                <i data-lucide="more-vertical" class="w-4 h-4 text-gray-400"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f3f4f6]">
+        <!-- Top Header with Tabs -->
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-10 transition-shadow">
+            <div class="px-8 py-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-2xl font-bold text-gray-800">Inventory Management</h1>
+
+                    <!-- Action Button (Dynamic Label) -->
+                    <button id="add-btn"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-500 hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                        <span id="add-btn-text">Add Item</span>
+                    </button>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex space-x-8 border-b border-gray-200">
+                    <button
+                        class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
+                        data-tab="categories">Item Groups</button>
+                    <button
+                        class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-brand-600 border-brand-500"
+                        data-tab="items">Items</button>
+                    <button
+                        class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
+                        data-tab="stock">Stock Entry</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-8 max-w-[1600px] mx-auto space-y-6">
+
+            <!-- Shared Search & Filter Bar REMOVED -->
+
+            <!-- Content Views -->
+
+            <!-- 1. Categories View -->
+            <div id="categories-view" class="view-section hidden fade-in space-y-6">
+
+                <!-- Custom Header for Categories -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Item Groups</h2>
+                        <p class="text-gray-500 mt-1">Manage your menu categories and grouping.</p>
+                    </div>
+                    <button id="categories-add-btn"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                        Add Group
+                    </button>
+                </div>
+
+                <!-- Filters Card -->
+                <div
+                    class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <!-- Search -->
+                    <div class="relative flex-grow w-full md:w-auto">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
+                        </div>
+                        <input type="text" id="categories-search"
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-400 focus:outline-none focus:placeholder-gray-500 focus:ring-1 focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
+                            placeholder="Search categories...">
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="w-full md:w-48 relative">
+                        <select id="categories-status-filter"
+                            class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm rounded-md border appearance-none bg-white">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                            <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="categories-table">
+                            <!-- JS Rendered -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Items View -->
+            <div id="items-view" class="view-section hidden fade-in space-y-6">
+
+                <!-- Custom Header for Items View -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Inventory Items</h2>
+                        <p class="text-gray-500 mt-1">Manage all your products, prices, and stock levels.</p>
+                    </div>
+                    <button id="items-add-btn"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                        New Item
+                    </button>
+                </div>
+
+                <!-- Specific Filters Card -->
+                <div
+                    class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between gap-4">
+                    <!-- Search -->
+                    <div class="relative flex-grow">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
+                        </div>
+                        <input type="text" id="items-search"
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-400 focus:outline-none focus:placeholder-gray-500 focus:ring-1 focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
+                            placeholder="Search items by name, SKU...">
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2">
+                        <button
+                            class="p-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                            <i data-lucide="filter" class="w-4 h-4"></i>
+                        </button>
+                        <button
+                            class="p-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="items-table">
+                            <!-- JS Rendered -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Stock View -->
+            <div id="stock-view" class="view-section hidden fade-in space-y-6">
+
+                <!-- Custom Header for Stock View -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Stock Management</h2>
+                        <p class="text-gray-500 mt-1">Record incoming stock, wastage, and adjustments.</p>
+                    </div>
+                    <button onclick="openAddModal()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
+                        <i data-lucide="package-plus" class="w-4 h-4 mr-2"></i>
+                        New Entry
+                    </button>
+                </div>
+
+                <!-- Filters Card -->
+                <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <!-- Search -->
+                        <div class="relative flex-grow">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
+                            </div>
+                            <input type="text" id="stock-search"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-400 focus:outline-none focus:placeholder-gray-500 focus:ring-1 focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
+                                placeholder="Search reference no...">
+                        </div>
+
+                        <!-- Type Filter -->
+                        <div class="w-full md:w-48 relative">
+                            <select id="stock-type-filter"
+                                class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm rounded-md border appearance-none bg-white">
+                                <option value="">All Types</option>
+                                <option value="in">Stock IN (+)</option>
+                                <option value="out">Stock OUT (-)</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400"></i>
+                            </div>
+                        </div>
+
+                        <!-- Date Filter -->
+                        <div class="w-full md:w-48">
+                            <input type="date" id="stock-date-filter"
+                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm text-gray-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="stock-table">
+                            <!-- JS Rendered -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Generic Modal Overlay -->
+    <div id="modal-overlay"
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 z-50 hidden flex items-center justify-center fade-in">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden transform transition-all">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <h3 class="text-lg font-medium text-gray-900" id="modal-title">Modal Title</h3>
+                <button id="modal-close" class="text-gray-400 hover:text-gray-500">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6" id="modal-content">
+                <!-- Form Content Injected Here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/inventory.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- Action Menu (Context Menu) -->
+    <div id="action-menu" class="hidden fixed bg-white border border-gray-200 shadow-lg rounded-md py-1 w-32 z-50">
+        <button id="action-open"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Open</button>
+        <button id="action-edit"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Edit</button>
+        <button id="action-delete"
+            class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Delete</button>
+    </div>
+</body>
+
+</html>
