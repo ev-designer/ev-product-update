@@ -142,8 +142,12 @@ function renderDailyGrid() {
                 : '<span class="text-gray-400">Pending</span>'}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button onclick="toggleTaskStatus(${task.id})" class="text-brand-600 hover:text-brand-900">
-                        ${task.isDone ? 'Mark Undone' : 'Mark Done'}
+                    <button onclick="toggleTaskStatus(${task.id})" type="button" 
+                        class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 ${task.isDone ? 'bg-[#4a90e2]' : 'bg-gray-200'}" 
+                        role="switch" aria-checked="${task.isDone}">
+                        <span aria-hidden="true" 
+                            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${task.isDone ? 'translate-x-5' : 'translate-x-0'}">
+                        </span>
                     </button>
                 </td>
             </tr>
@@ -271,14 +275,14 @@ function openChecklistModal() {
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                 <div class="flex items-center space-x-4">
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="status" value="active" checked class="form-radio h-4 w-4 text-brand-600 border-gray-300">
-                        <span class="ml-2 text-sm text-gray-700">Active</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="status" value="inactive" class="form-radio h-4 w-4 text-gray-400 border-gray-300">
-                        <span class="ml-2 text-sm text-gray-700">Inactive</span>
-                    </label>
+                    <div class="flex items-center">
+                        <input id="template-status-active" name="status" type="radio" value="active" checked class="focus:ring-brand-500 h-4 w-4 text-brand-600 border-gray-300">
+                        <label for="template-status-active" class="ml-2 block text-sm text-gray-700">Active</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="template-status-inactive" name="status" type="radio" value="inactive" class="focus:ring-[#a855f7] h-4 w-4 text-[#a855f7] border-gray-300">
+                        <label for="template-status-inactive" class="ml-2 block text-sm text-gray-700">Inactive</label>
+                    </div>
                 </div>
             </div>
             <div class="flex justify-end gap-3 pt-4">
