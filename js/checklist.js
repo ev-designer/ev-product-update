@@ -274,20 +274,19 @@ function openChecklistModal() {
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center">
-                        <input id="template-status-active" name="status" type="radio" value="active" checked class="focus:ring-brand-500 h-4 w-4 text-brand-600 border-gray-300">
-                        <label for="template-status-active" class="ml-2 block text-sm text-gray-700">Active</label>
+                <div class="flex items-center">
+                    <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="status" id="template-status-toggle" value="active" checked 
+                            class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                            onchange="document.getElementById('status-label-text').textContent = this.checked ? 'Active' : 'Inactive'">
+                        <label for="template-status-toggle" class="toggle-label block overflow-hidden h-6 rounded-full cursor-pointer"></label>
                     </div>
-                    <div class="flex items-center">
-                        <input id="template-status-inactive" name="status" type="radio" value="inactive" class="focus:ring-[#a855f7] h-4 w-4 text-[#a855f7] border-gray-300">
-                        <label for="template-status-inactive" class="ml-2 block text-sm text-gray-700">Inactive</label>
-                    </div>
+                    <label for="template-status-toggle" class="text-sm text-gray-700" id="status-label-text">Active</label>
                 </div>
             </div>
             <div class="flex justify-end gap-3 pt-4">
                 <button type="button" onclick="closeChecklistModal()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
-                <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700">Save Template</button>
+                <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4]">Save Template</button>
             </div>
         </form>
     `;
@@ -315,7 +314,7 @@ function handleAddTemplate(e) {
         name: formData.get('name'),
         task: formData.get('task'),
         shift: shifts,
-        status: formData.get('status'),
+        status: formData.get('status') ? 'active' : 'inactive',
         createdBy: 'Admin'
     };
 
@@ -344,9 +343,12 @@ function editTemplate(id) {
         const cb = form.querySelector(`input[value="${s}"]`);
         if (cb) cb.checked = true;
     });
-    // Handle status radio
-    const radio = form.querySelector(`input[name="status"][value="${t.status}"]`);
-    if (radio) radio.checked = true;
+    // Handle status toggle
+    const toggle = form.querySelector('input[name="status"]');
+    if (toggle) {
+        toggle.checked = t.status === 'active';
+        document.getElementById('status-label-text').textContent = t.status === 'active' ? 'Active' : 'Inactive';
+    }
 
     // Override Submit Handler
     form.onsubmit = (e) => {
@@ -364,7 +366,7 @@ function editTemplate(id) {
         t.name = formData.get('name');
         t.task = formData.get('task');
         t.shift = shifts;
-        t.status = formData.get('status');
+        t.status = formData.get('status') ? 'active' : 'inactive';
 
         closeChecklistModal();
         renderChecklist();

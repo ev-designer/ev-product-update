@@ -557,15 +557,14 @@ function openAddModal() {
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <div class="flex items-center space-x-4">
-                        <div class="flex items-center">
-                            <input id="cat-status-active" name="status" type="radio" value="active" checked class="focus:ring-brand-500 h-4 w-4 text-brand-600 border-gray-300">
-                            <label for="cat-status-active" class="ml-2 block text-sm text-gray-700">Active</label>
+                    <div class="flex items-center">
+                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="status" id="cat-status-toggle" value="active" checked 
+                                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                onchange="document.getElementById('cat-status-label').textContent = this.checked ? 'Active' : 'Inactive'">
+                            <label for="cat-status-toggle" class="toggle-label block overflow-hidden h-6 rounded-full cursor-pointer"></label>
                         </div>
-                        <div class="flex items-center">
-                            <input id="cat-status-inactive" name="status" type="radio" value="inactive" class="focus:ring-[#a855f7] h-4 w-4 text-[#a855f7] border-gray-300">
-                            <label for="cat-status-inactive" class="ml-2 block text-sm text-gray-700">Inactive</label>
-                        </div>
+                        <label for="cat-status-toggle" class="text-sm text-gray-700" id="cat-status-label">Active</label>
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
@@ -623,15 +622,14 @@ function openAddModal() {
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <div class="flex items-center space-x-4">
-                        <div class="flex items-center">
-                            <input id="status-active" name="status" type="radio" value="active" checked class="focus:ring-brand-500 h-4 w-4 text-brand-600 border-gray-300">
-                            <label for="status-active" class="ml-2 block text-sm text-gray-700">Active</label>
+                    <div class="flex items-center">
+                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="status" id="item-status-toggle" value="active" checked 
+                                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                onchange="document.getElementById('item-status-label').textContent = this.checked ? 'Active' : 'Inactive'">
+                            <label for="item-status-toggle" class="toggle-label block overflow-hidden h-6 rounded-full cursor-pointer"></label>
                         </div>
-                        <div class="flex items-center">
-                            <input id="status-inactive" name="status" type="radio" value="inactive" class="focus:ring-[#a855f7] h-4 w-4 text-[#a855f7] border-gray-300">
-                            <label for="status-inactive" class="ml-2 block text-sm text-gray-700">Inactive</label>
-                        </div>
+                        <label for="item-status-toggle" class="text-sm text-gray-700" id="item-status-label">Active</label>
                     </div>
                 </div>
 
@@ -690,7 +688,7 @@ function handleAddCategory(e) {
         id: Date.now(),
         name: formData.get('name'),
         description: '',
-        status: formData.get('status')
+        status: formData.get('status') ? 'active' : 'inactive'
     };
     store.categories.push(newCat);
     closeModal();
@@ -710,7 +708,7 @@ function handleAddItem(e) {
         price: parseFloat(formData.get('price')),
         stock: parseInt(formData.get('stock')),
         tax: 0,
-        status: formData.get('status')
+        status: formData.get('status') ? 'active' : 'inactive'
     };
     store.items.push(newItem);
 
