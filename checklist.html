@@ -133,9 +133,7 @@
                 <!-- Header with Date -->
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800">Today's Tasks</h2>
-                    <div class="text-sm text-gray-500 font-medium">
-                        Date: <span class="text-gray-900" id="current-date"></span>
-                    </div>
+
                 </div>
 
                 <!-- Stats Layout -->
@@ -179,7 +177,7 @@
                     <div class="bg-gray-50 p-4 border border-gray-200 h-full">
                         <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
                             <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+                                <i data-lucide="sun" class="w-4 h-4 text-yellow-500"></i>
                                 Morning
                             </h3>
                             <span class="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full"
@@ -194,7 +192,7 @@
                     <div class="bg-gray-50 p-4 border border-gray-200 h-full">
                         <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
                             <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+                                <i data-lucide="sunset" class="w-4 h-4 text-orange-500"></i>
                                 Evening
                             </h3>
                             <span class="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full"
@@ -209,7 +207,7 @@
                     <div class="bg-gray-50 p-4 border border-gray-200 h-full">
                         <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
                             <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                                <i data-lucide="moon" class="w-4 h-4 text-indigo-500"></i>
                                 Night
                             </h3>
                             <span class="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full"
@@ -329,9 +327,7 @@
 
     <!-- Action Menu -->
     <div id="action-menu" class="hidden fixed bg-white shadow-lg border border-gray-100 z-50 w-32 py-1">
-        <button id="action-open" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-            Open
-        </button>
+
         <button id="action-edit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
             Edit
         </button>

@@ -173,38 +173,24 @@ function renderDailyBoard() {
         // Update Count
         if (countBadge) countBadge.textContent = shiftCards.length;
 
-        // Render Cards
-        container.innerHTML = shiftCards.map(card => {
-            // Calculate progress for card
-            const doneCount = card.tasks.filter(t => t.isDone).length;
-            const totalCount = card.tasks.length;
-            const isFullyComplete = doneCount === totalCount && totalCount > 0;
-            const cardColorClass = isFullyComplete ? 'border-green-200 bg-green-50' : 'bg-white border-gray-200';
-
-            return `
-                <div class="border ${cardColorClass} shadow-sm p-4 hover:shadow-md transition-shadow">
-                    <div class="flex justify-between items-start mb-3">
-                        <h4 class="font-semibold text-gray-800">${card.title}</h4>
-                         ${isFullyComplete
-                    ? `<span class="text-green-600 bg-green-100 px-2 py-0.5 rounded text-xs font-medium">Done</span>`
-                    : `<span class="text-gray-400 text-xs">${doneCount}/${totalCount}</span>`}
-                    </div>
-                    <div class="space-y-2">
-                        ${card.tasks.map((task, idx) => `
-                            <label class="flex items-start gap-2 cursor-pointer group">
-                                <input type="checkbox" 
-                                    ${task.isDone ? 'checked' : ''} 
-                                    onchange="toggleSubTask('${card.id}', ${idx})"
-                                    class="mt-0.5 custom-checkbox rounded border-gray-300 text-[#4a90e2] focus:ring-[#4a90e2]">
-                                <span class="text-sm text-gray-600 ${task.isDone ? 'line-through text-gray-400' : 'group-hover:text-gray-900'} transition-colors leading-tight">
-                                    ${task.text}
-                                </span>
-                            </label>
-                        `).join('')}
-                    </div>
+        // Render Tasks Flattened
+        const tasksHTML = shiftCards.flatMap(card => {
+            return card.tasks.map((task, idx) => `
+                <div class="bg-white p-3 rounded-md border border-gray-200 shadow-sm hover:shadow-md hover:border-brand-200 transition-all">
+                    <label class="flex items-start gap-3 cursor-pointer select-none">
+                        <input type="checkbox" 
+                            ${task.isDone ? 'checked' : ''} 
+                            onchange="toggleSubTask('${card.id}', ${idx})"
+                            class="mt-0.5 custom-checkbox rounded border-gray-300 text-[#4a90e2] focus:ring-[#4a90e2]">
+                        <span class="text-sm text-gray-700 ${task.isDone ? 'line-through text-gray-400' : 'hover:text-gray-900'} transition-colors leading-snug">
+                            ${task.text}
+                        </span>
+                    </label>
                 </div>
-            `;
+            `);
         }).join('');
+
+        container.innerHTML = tasksHTML;
     });
 }
 
@@ -264,7 +250,7 @@ function renderTemplatesGrid() {
         }).join('')}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                     <span class="px-2 inline-flex text-xs leading-5 font-semibold ${t.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                     <span style="border-radius: 50px !important;" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-[50px] ${t.status === 'active' ? 'bg-[#15803d] text-white' : 'bg-gray-300 text-gray-800'}">
                         ${t.status}
                     </span>
                 </td>
@@ -328,18 +314,24 @@ function renderModalContent(isEdit, template) {
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Shifts</label>
-                <div class="mt-2 space-y-2">
-                    <label class="inline-flex items-center">
-                        <input type="checkbox" name="shift" value="Morning" ${template && template.shift.includes('Morning') ? 'checked' : ''} class="custom-checkbox h-4 w-4 text-[#4a90e2] border-gray-300">
-                        <span class="ml-2 text-sm text-gray-700">Morning</span>
+                <div class="mt-2 flex shadow-sm select-none">
+                    <label class="relative flex-1 cursor-pointer group">
+                        <input type="checkbox" name="shift" value="Morning" ${template && template.shift.includes('Morning') ? 'checked' : ''} class="peer sr-only">
+                        <div class="px-4 py-2 text-sm text-center border border-gray-300 border-r-0 bg-white text-gray-700 peer-checked:bg-blue-50 peer-checked:text-blue-700 peer-checked:border-blue-500 peer-checked:z-10 hover:bg-gray-50 transition-all font-medium">
+                            Morning
+                        </div>
                     </label>
-                    <label class="inline-flex items-center ml-4">
-                        <input type="checkbox" name="shift" value="Evening" ${template && template.shift.includes('Evening') ? 'checked' : ''} class="custom-checkbox h-4 w-4 text-[#4a90e2] border-gray-300">
-                        <span class="ml-2 text-sm text-gray-700">Evening</span>
+                    <label class="relative flex-1 cursor-pointer group">
+                        <input type="checkbox" name="shift" value="Evening" ${template && template.shift.includes('Evening') ? 'checked' : ''} class="peer sr-only">
+                        <div class="px-4 py-2 text-sm text-center border border-gray-300 border-r-0 bg-white text-gray-700 peer-checked:bg-blue-50 peer-checked:text-blue-700 peer-checked:border-blue-500 peer-checked:z-10 hover:bg-gray-50 transition-all font-medium">
+                            Evening
+                        </div>
                     </label>
-                    <label class="inline-flex items-center ml-4">
-                        <input type="checkbox" name="shift" value="Night" ${template && template.shift.includes('Night') ? 'checked' : ''} class="custom-checkbox h-4 w-4 text-[#4a90e2] border-gray-300">
-                        <span class="ml-2 text-sm text-gray-700">Night</span>
+                    <label class="relative flex-1 cursor-pointer group">
+                        <input type="checkbox" name="shift" value="Night" ${template && template.shift.includes('Night') ? 'checked' : ''} class="peer sr-only">
+                        <div class="px-4 py-2 text-sm text-center border border-gray-300 bg-white text-gray-700 peer-checked:bg-blue-50 peer-checked:text-blue-700 peer-checked:border-blue-500 peer-checked:z-10 hover:bg-gray-50 transition-all font-medium">
+                            Night
+                        </div>
                     </label>
                 </div>
             </div>
@@ -541,11 +533,11 @@ function setupActionMenu() {
     checklistActionMenu = document.getElementById('action-menu');
     if (!checklistActionMenu) return;
 
-    const openBtn = document.getElementById('action-open');
+    // const openBtn = document.getElementById('action-open');
     const editBtn = document.getElementById('action-edit');
     const deleteBtn = document.getElementById('action-delete');
 
-    if (openBtn) openBtn.onclick = () => handleChecklistAction('open');
+    // if (openBtn) openBtn.onclick = () => handleChecklistAction('open');
     if (editBtn) editBtn.onclick = () => handleChecklistAction('edit');
     if (deleteBtn) deleteBtn.onclick = () => handleChecklistAction('delete');
 
@@ -583,7 +575,7 @@ function closeActionMenu() {
 
 function handleChecklistAction(type) {
     if (!activeActionId) return;
-    if (type === 'open') alert(`View/Open functionality for ID: ${activeActionId}`);
+    // if (type === 'open') alert(`View/Open functionality for ID: ${activeActionId}`);
     if (type === 'edit') editTemplate(activeActionId);
     if (type === 'delete') deleteTemplate(activeActionId);
     closeActionMenu();

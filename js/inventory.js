@@ -272,7 +272,7 @@ let actionMenu = null; // Lazy load
 function setupActionMenu() {
     actionMenu = document.getElementById('action-menu');
     // Buttons in menu
-    document.getElementById('action-open').addEventListener('click', () => handleAction('open'));
+    // document.getElementById('action-open').addEventListener('click', () => handleAction('open')); // Removed
     document.getElementById('action-edit').addEventListener('click', () => handleAction('edit'));
     document.getElementById('action-delete').addEventListener('click', () => handleAction('delete'));
 
@@ -316,10 +316,7 @@ function closeActionMenu() {
 function handleAction(action) {
     if (!activeActionId || !activeActionType) return;
 
-    if (action === 'open') {
-        // Implement Open logic if needed, currently generic alert or log
-        // console.log(`Open ${activeActionType} ${activeActionId}`);
-    } else if (action === 'edit') {
+    if (action === 'edit') {
         if (activeActionType === 'category') editCategory(activeActionId);
         else if (activeActionType === 'item') editItem(activeActionId);
     } else if (action === 'delete') {
@@ -778,10 +775,21 @@ function openAddModal() {
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Entry Type <span class="text-red-500">*</span></label>
-                        <select id="stock-type" required class="block w-full bg-white border border-gray-300 rounded-md shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
-                            <option value="in">Stock IN (+)</option>
-                            <option value="out">Stock OUT (-)</option>
-                        </select>
+                        <div class="flex shadow-sm select-none">
+                            <label class="relative flex-1 cursor-pointer group">
+                                <input type="radio" name="entry_type_visual" value="in" checked class="peer sr-only" onchange="document.getElementById('stock-type').value='in'">
+                                <div class="px-2 py-1.5 text-sm text-center border border-gray-300 border-r-0 bg-white text-gray-700 peer-checked:bg-green-50 peer-checked:text-green-700 peer-checked:border-green-500 peer-checked:z-10 hover:bg-gray-50 transition-all font-medium">
+                                    Received
+                                </div>
+                            </label>
+                            <label class="relative flex-1 cursor-pointer group">
+                                <input type="radio" name="entry_type_visual" value="out" class="peer sr-only" onchange="document.getElementById('stock-type').value='out'">
+                                <div class="px-2 py-1.5 text-sm text-center border border-gray-300 bg-white text-gray-700 peer-checked:bg-red-50 peer-checked:text-red-700 peer-checked:border-red-500 peer-checked:z-10 hover:bg-gray-50 transition-all font-medium">
+                                    Consumed
+                                </div>
+                            </label>
+                        </div>
+                        <input type="hidden" id="stock-type" value="in">
                     </div>
                     <div class="col-span-4">
                         <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Extra Note</label>
@@ -799,11 +807,11 @@ function openAddModal() {
                     <!-- Column Headers -->
                     <div class="grid grid-cols-12 gap-3 px-2 py-2 bg-gray-100 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <div class="col-span-4">Item Name <span class="text-red-500">*</span></div>
-                        <div class="col-span-2">UoM <span class="text-red-500">*</span></div>
+                        <div class="col-span-2">UoM</div>
                         <div class="col-span-2">Quantity <span class="text-red-500">*</span></div>
                         <div class="col-span-2">Unit Price (₹) <span class="text-red-500">*</span></div>
                         <div class="col-span-1">Total (₹)</div>
-                        <div class="col-span-1 text-center">Action</div>
+                        <div class="col-span-1 text-center"></div>
                     </div>
 
                     <div id="stock-items-container" class="border border-t-0 border-gray-200 divide-y divide-gray-200 bg-white max-h-[300px] overflow-y-auto">
@@ -812,8 +820,8 @@ function openAddModal() {
                     
                     <!-- Add Item Button (Moved Position) -->
                     <div class="mt-2 text-left">
-                        <button type="button" onclick="addStockItemRow()" class="inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none">
-                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                        <button type="button" onclick="addStockItemRow()" class="inline-flex items-center px-4 py-2 border border-blue-200 text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none transition-colors select-none">
+                            <i data-lucide="plus" class="w-5 h-5 mr-2 text-gray-900"></i>
                             Add Item
                         </button>
                     </div>
@@ -899,8 +907,8 @@ function addStockItemRow() {
             </div>
             
             <div class="col-span-2">
-                <input type="text" class="item-uom block w-full bg-gray-50 border border-gray-300 rounded-none shadow-sm py-1.5 px-2 focus:outline-none text-sm text-gray-500 cursor-not-allowed" 
-                       placeholder="UoM" required disabled>
+                <input type="text" class="item-uom block w-full bg-transparent border-none focus:ring-0 rounded-none py-1.5 px-2 focus:outline-none text-sm text-gray-500 cursor-default" 
+                       placeholder="UoM" readonly>
             </div>
             
             <div class="col-span-2">
@@ -945,7 +953,7 @@ function closeModal() {
 }
 
 function removeStockItemRow(rowId) {
-    const row = document.querySelector(`[data - row - id= "${rowId}"]`);
+    const row = document.querySelector(`[data-row-id="${rowId}"]`);
     if (row) {
         const container = document.getElementById('stock-items-container');
         // Prevent removing the last item
@@ -958,7 +966,7 @@ function removeStockItemRow(rowId) {
 }
 
 function updateItemRowData(rowId) {
-    const row = document.querySelector(`[data - row - id= "${rowId}"]`);
+    const row = document.querySelector(`[data-row-id="${rowId}"]`);
     if (!row) return;
 
     const select = row.querySelector('.item-select');
@@ -978,7 +986,7 @@ function updateItemRowData(rowId) {
 }
 
 function calculateItemTotal(rowId) {
-    const row = document.querySelector(`[data - row - id= "${rowId}"]`);
+    const row = document.querySelector(`[data-row-id="${rowId}"]`);
     if (!row) return;
 
     const quantity = row.querySelector('.item-quantity');
