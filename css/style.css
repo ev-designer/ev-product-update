@@ -3,9 +3,17 @@ body {
     color: #1f2937;
 }
 
-* {
+/* Inventory Page - Zero Border Radius */
+#inventory-page table,
+#inventory-page button,
+#inventory-page input,
+#inventory-page select,
+#inventory-page .rounded-md,
+#inventory-page .rounded-lg,
+#inventory-page .rounded {
     border-radius: 0 !important;
 }
+
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
@@ -90,9 +98,52 @@ body {
 .toggle-label {
     background-color: #cbd5e1;
     /* Gray background when unchecked */
-    transition: background-color 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
 }
 
 .toggle-checkbox:checked+.toggle-label {
     background-color: #4a90e2;
+    /* Blue background when checked */
+}
+
+/* Custom Radio Button Styling */
+input[type="radio"].peer {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Radio button labels - default state */
+input[type="radio"].peer~div {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    color: #6b7280;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Radio button labels - hover state */
+input[type="radio"].peer~div:hover {
+    background-color: #f9fafb;
+}
+
+/* Radio button labels - checked state */
+input[type="radio"].peer:checked~div {
+    background-color: #eff6ff;
+    color: #4a90e2;
+    border-color: #bfdbfe;
+}
+
+/* Radio button labels - checked hover state */
+input[type="radio"].peer:checked~div:hover {
+    background-color: #dbeafe;
 }

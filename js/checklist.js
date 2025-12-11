@@ -90,34 +90,59 @@ function generateDailyTasks() {
 function renderChecklist() {
     if (checklistTab === 'daily') {
         renderDailyGrid();
+        updateDashboardStats();
     } else {
         renderTemplatesGrid();
     }
     lucide.createIcons();
 }
 
+function updateDashboardStats() {
+    const tasks = checklistStore.dailyTasks;
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.isDone).length;
+    const pending = total - completed;
+    const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+    const percentEl = document.getElementById('progress-percent');
+    const textEl = document.getElementById('progress-text');
+    const pendingEl = document.getElementById('pending-count');
+
+    // Safe check if elements exist (in case view is hidden)
+    if (percentEl) percentEl.textContent = `${percent}%`;
+    if (textEl) textEl.textContent = `${completed} of ${total} tasks`;
+    if (pendingEl) pendingEl.textContent = pending;
+}
+
 function renderDailyGrid() {
     const tbody = document.getElementById('daily-table');
     if (!tbody) return;
 
+    // Shift Filter
+    const shiftFilter = document.getElementById('shift-filter-select');
+    const selectedShift = shiftFilter ? shiftFilter.value : 'All';
+
     let html = `
         <thead class="bg-gray-50 border-b border-gray-200">
             <tr>
-                <th class="px-6 py-3 text-left">
+                <th class="px-6 py-4 text-left w-10">
                      <input type="checkbox" onclick="toggleChecklistAll(this)" class="custom-checkbox rounded border-gray-300 text-brand-600 focus:ring-brand-500">
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Task</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Shift</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Task</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Shift</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
     `;
 
-    // Filter logic can go here
-    // Pagination Logic
-    const tasks = checklistStore.dailyTasks;
+    // Filter Logic
+    let tasks = checklistStore.dailyTasks;
+    if (selectedShift !== 'All') {
+        tasks = tasks.filter(t => t.shift.includes(selectedShift));
+    }
+
     const totalItems = tasks.length;
     const { page, limit } = checklistPaginationState.daily;
     const start = (page - 1) * limit;
@@ -125,25 +150,39 @@ function renderDailyGrid() {
     const paginatedData = tasks.slice(start, end);
 
     if (paginatedData.length === 0) {
-        html += `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No tasks for today.</td></tr>`;
+        html += `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No tasks found for this shift.</td></tr>`;
     } else {
         html += paginatedData.map(task => `
-            <tr>
+            <tr class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4">
                      <input type="checkbox" class="custom-checkbox rounded border-gray-300 text-brand-600 focus:ring-brand-500" onclick="toggleChecklistRow(this)">
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${task.taskName}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${task.shift.map(s => `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 mr-1">${s}</span>`).join('')}
+                <td class="px-6 py-4">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-semibold text-gray-900">${task.taskName}</span>
+                        <span class="text-xs text-gray-400 mt-0.5">Created by: Alice Admin (Admin)</span>
+                    </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${task.shift.map(s => {
+            let classes = 'bg-gray-100 text-gray-600 border-gray-200';
+            if (s === 'Morning') classes = 'bg-amber-50 text-amber-700 border-amber-200';
+            if (s === 'Evening') classes = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+            if (s === 'Night') classes = 'bg-slate-100 text-slate-700 border-slate-200';
+            return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${classes} mr-2 border shadow-sm">${s}</span>`;
+        }).join('')}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
                     ${task.isDone
-                ? `<span class="text-green-600 font-medium">Done</span> <span class="text-xs text-gray-400">(${task.timestamp})</span>`
-                : '<span class="text-gray-400">Pending</span>'}
+                ? `<div class="flex flex-col">
+                        <span class="text-green-600 font-bold">Done</span>
+                        <span class="text-xs text-gray-400">(${task.timestamp})</span>
+                   </div>`
+                : '<span class="text-gray-400 font-medium">Pending</span>'}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button onclick="toggleTaskStatus(${task.id})" type="button" 
-                        class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 ${task.isDone ? 'bg-[#4a90e2]' : 'bg-gray-200'}" 
+                        class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#4a90e2] focus:ring-offset-2 ${task.isDone ? 'bg-[#4a90e2]' : 'bg-gray-200'}" 
                         role="switch" aria-checked="${task.isDone}">
                         <span aria-hidden="true" 
                             class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${task.isDone ? 'translate-x-5' : 'translate-x-0'}">
@@ -198,7 +237,13 @@ function renderTemplatesGrid() {
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${t.name}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${t.task}</td>
                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${t.shift.map(s => `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 mr-1">${s}</span>`).join('')}
+                    ${t.shift.map(s => {
+            let classes = 'bg-gray-100 text-gray-600 border-gray-200';
+            if (s === 'Morning') classes = 'bg-amber-50 text-amber-700 border-amber-200';
+            if (s === 'Evening') classes = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+            if (s === 'Night') classes = 'bg-slate-100 text-slate-700 border-slate-200';
+            return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${classes} mr-1 border shadow-sm">${s}</span>`;
+        }).join('')}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${t.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">

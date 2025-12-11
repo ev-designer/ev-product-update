@@ -49,7 +49,7 @@
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden text-sm font-sans">
+<body id="inventory-page" class="flex h-screen overflow-hidden text-sm font-sans">
 
     <!-- Sidebar -->
     <aside class="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 z-20">
@@ -116,16 +116,26 @@
             <div class="px-8 py-4">
                 <div class="flex items-center justify-between mb-4">
                     <h1 class="text-2xl font-bold text-gray-800">Inventory Management</h1>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="text-sm text-gray-500 font-medium bg-white px-3 py-1.5 rounded-md border border-gray-200 shadow-sm flex items-center gap-2">
+                            <span>Currency:</span>
+                            <span class="text-brand-600 font-bold text-lg leading-none">₹</span>
+                        </div>
+                        <div class="text-sm text-gray-500 font-medium hidden md:block">
+                            Date: <span class="text-gray-900" id="header-date"></span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Tabs -->
                 <div class="flex space-x-8 border-b border-gray-200">
                     <button
                         class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-brand-600 border-brand-500"
-                        data-tab="categories">Item Groups</button>
+                        data-tab="categories">Item Categories</button>
                     <button
                         class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
-                        data-tab="items">Items</button>
+                        data-tab="items">Raw Items Templates</button>
                     <button
                         class="tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
                         data-tab="stock">Stock Entry</button>
@@ -142,20 +152,11 @@
             <!-- 1. Categories View -->
             <div id="categories-view" class="view-section fade-in space-y-6">
 
-                <!-- Custom Header for Categories REMOVED -->
-                <div class="flex items-center justify-end">
-                    <button id="categories-add-btn"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors mb-4">
-                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                        Add Group
-                    </button>
-                </div>
-
                 <!-- Filters Card -->
                 <div
-                    class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                    class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between gap-4">
                     <!-- Search -->
-                    <div class="relative flex-grow w-full md:w-auto">
+                    <div class="relative flex-grow">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
                         </div>
@@ -164,17 +165,27 @@
                             placeholder="Search categories...">
                     </div>
 
-                    <!-- Status Filter -->
-                    <div class="w-full md:w-48 relative">
-                        <select id="categories-status-filter"
-                            class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm rounded-md border appearance-none bg-white">
-                            <option value="">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400"></i>
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2">
+                        <!-- Status Filter -->
+                        <div class="relative">
+                            <select id="categories-status-filter"
+                                class="block w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm rounded-md border appearance-none bg-white">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400"></i>
+                            </div>
                         </div>
+
+                        <!-- Add Category Button -->
+                        <button id="categories-add-btn"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                            Add Category
+                        </button>
                     </div>
                 </div>
 
@@ -190,15 +201,6 @@
             <!-- 2. Items View -->
             <div id="items-view" class="view-section hidden fade-in space-y-6">
 
-                <!-- Custom Header for Items View REMOVED -->
-                <div class="flex items-center justify-end">
-                    <button id="items-add-btn"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors mb-4">
-                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                        New Item
-                    </button>
-                </div>
-
                 <!-- Specific Filters Card -->
                 <div
                     class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between gap-4">
@@ -209,18 +211,70 @@
                         </div>
                         <input type="text" id="items-search"
                             class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-400 focus:outline-none focus:placeholder-gray-500 focus:ring-1 focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
-                            placeholder="Search items by name, SKU...">
+                            placeholder="Search by item name">
                     </div>
 
                     <!-- Actions -->
                     <div class="flex items-center gap-2">
-                        <button
-                            class="p-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-brand-500">
-                            <i data-lucide="filter" class="w-4 h-4"></i>
-                        </button>
-                        <button
-                            class="p-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-brand-500">
-                            <i data-lucide="download" class="w-4 h-4"></i>
+                        <!-- Filter Dropdown -->
+                        <div class="relative">
+                            <button id="items-filter-btn"
+                                class="p-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                <i data-lucide="filter" class="w-4 h-4"></i>
+                            </button>
+                            <div id="items-filter-dropdown"
+                                class="hidden absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                                <div class="p-4 space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Category</label>
+                                        <select id="items-category-filter"
+                                            class="block w-full text-sm border-gray-300 rounded-md focus:ring-brand-500 focus:border-brand-500">
+                                            <option value="">All Categories</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                                        <select id="items-status-filter"
+                                            class="block w-full text-sm border-gray-300 rounded-md focus:ring-brand-500 focus:border-brand-500">
+                                            <option value="">All Status</option>
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export Dropdown -->
+                        <div class="relative">
+                            <button id="items-export-btn"
+                                class="p-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                            </button>
+                            <div id="items-export-dropdown"
+                                class="hidden absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                                <div class="p-3">
+                                    <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                                        <h3 class="text-base font-bold text-gray-900">Export Options</h3>
+                                        <i data-lucide="upload" class="w-5 h-5 text-gray-400"></i>
+                                    </div>
+                                    <button onclick="exportItems('pdf')"
+                                        class="w-full text-left px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">
+                                        Export As PDF
+                                    </button>
+                                    <button onclick="exportItems('excel')"
+                                        class="w-full text-left px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">
+                                        Export As Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- New Template Button -->
+                        <button id="items-add-btn"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                            New Template
                         </button>
                     </div>
                 </div>
@@ -238,49 +292,42 @@
             <div id="stock-view" class="view-section hidden fade-in space-y-6">
 
                 <!-- Custom Header for Stock View -->
-                <div class="flex items-center justify-between">
+                <div class="flex items-start justify-between">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-800">Stock Management</h2>
-                        <p class="text-gray-500 mt-1">Record incoming stock, wastage, and adjustments.</p>
+                        <p class="text-gray-500 mt-1">Record raw item's stock in-out entries</p>
                     </div>
-                    <button onclick="openAddModal()"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
-                        <i data-lucide="package-plus" class="w-4 h-4 mr-2"></i>
-                        New Entry
-                    </button>
-                </div>
+                    <div class="flex items-end gap-3">
+                        <!-- Date Range -->
+                        <div class="flex flex-col">
+                            <label class="block text-xs font-medium text-gray-500 mb-2">Date Range</label>
+                            <div class="flex gap-2">
+                                <!-- From Date -->
+                                <div class="relative w-40">
+                                    <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                        <i data-lucide="calendar" class="h-3.5 w-3.5 text-gray-400"></i>
+                                    </div>
+                                    <input type="date" id="stock-from-date" placeholder="From date"
+                                        class="block w-full pl-8 pr-2 py-1.5 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 text-xs text-gray-700">
+                                </div>
 
-                <!-- Filters Card -->
-                <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                    <div class="flex flex-col md:flex-row gap-4">
-                        <!-- Search -->
-                        <div class="relative flex-grow">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
-                            </div>
-                            <input type="text" id="stock-search"
-                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-400 focus:outline-none focus:placeholder-gray-500 focus:ring-1 focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
-                                placeholder="Search reference no...">
-                        </div>
-
-                        <!-- Type Filter -->
-                        <div class="w-full md:w-48 relative">
-                            <select id="stock-type-filter"
-                                class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm rounded-md border appearance-none bg-white">
-                                <option value="">All Types</option>
-                                <option value="in">Stock IN (+)</option>
-                                <option value="out">Stock OUT (-)</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400"></i>
+                                <!-- To Date -->
+                                <div class="relative w-40">
+                                    <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                        <i data-lucide="calendar" class="h-3.5 w-3.5 text-gray-400"></i>
+                                    </div>
+                                    <input type="date" id="stock-to-date" placeholder="To date"
+                                        class="block w-full pl-8 pr-2 py-1.5 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 text-xs text-gray-700">
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Date Filter -->
-                        <div class="w-full md:w-48">
-                            <input type="date" id="stock-date-filter"
-                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm text-gray-500">
-                        </div>
+                        <!-- New Entry Button -->
+                        <button onclick="openAddModal()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
+                            <i data-lucide="package-plus" class="w-4 h-4 mr-2"></i>
+                            New Entry
+                        </button>
                     </div>
                 </div>
 

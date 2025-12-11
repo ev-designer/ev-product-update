@@ -12,7 +12,9 @@ const store = {
     ],
     // Log entries for stock movement
     stockLogs: [
-        { id: 1, date: '2023-10-25', itemName: 'Cola 300ml', type: 'in', quantity: 50, reason: 'Initial Stock' }
+        { id: 1, date: '2023-10-25', invoiceNo: 'INV-001', itemName: 'Cola 300ml', type: 'in', quantity: 50, unitPrice: 2.50, total: 125.00, reason: 'Initial Stock', extraNote: 'First batch' },
+        { id: 2, date: '2023-10-26', invoiceNo: 'INV-002', itemName: 'Cheese Burger', type: 'in', quantity: 30, unitPrice: 12.00, total: 360.00, reason: 'Weekly Supply', extraNote: 'Fresh ingredients' },
+        { id: 3, date: '2023-10-27', invoiceNo: '', itemName: 'Cola 300ml', type: 'out', quantity: 15, unitPrice: 2.50, total: 37.50, reason: 'Daily Sales', extraNote: 'Lunch rush' }
     ]
 };
 
@@ -38,9 +40,8 @@ const itemsSearch = document.getElementById('items-search');
 const itemsAddBtn = document.getElementById('items-add-btn');
 
 // Stock Specific Controls
-const stockSearch = document.getElementById('stock-search');
-const stockTypeFilter = document.getElementById('stock-type-filter');
-const stockDateFilter = document.getElementById('stock-date-filter');
+const stockFromDate = document.getElementById('stock-from-date');
+const stockToDate = document.getElementById('stock-to-date');
 
 // Pagination State
 const paginationState = {
@@ -57,6 +58,10 @@ const modalClose = document.getElementById('modal-close');
 
 // --- Initialization ---
 function init() {
+    // Set Date
+    const dateEl = document.getElementById('header-date');
+    if (dateEl) dateEl.textContent = new Date().toDateString();
+
     setupTabs();
     setupSearch();
 
@@ -70,6 +75,7 @@ function init() {
 
     render();
     setupModal();
+    populateCategoryFilter();
 }
 
 // --- Tab Logic ---
@@ -137,10 +143,72 @@ function setupSearch() {
         });
     }
 
+    // Items Filter Dropdown
+    const itemsFilterBtn = document.getElementById('items-filter-btn');
+    const itemsFilterDropdown = document.getElementById('items-filter-dropdown');
+    const itemsCategoryFilter = document.getElementById('items-category-filter');
+    const itemsStatusFilter = document.getElementById('items-status-filter');
+
+    if (itemsFilterBtn && itemsFilterDropdown) {
+        itemsFilterBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            itemsFilterDropdown.classList.toggle('hidden');
+            // Close export dropdown if open
+            const exportDropdown = document.getElementById('items-export-dropdown');
+            if (exportDropdown) exportDropdown.classList.add('hidden');
+        });
+
+        // Prevent dropdown from closing when clicking inside it
+        itemsFilterDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    // Items Export Dropdown
+    const itemsExportBtn = document.getElementById('items-export-btn');
+    const itemsExportDropdown = document.getElementById('items-export-dropdown');
+
+    if (itemsExportBtn && itemsExportDropdown) {
+        itemsExportBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            itemsExportDropdown.classList.toggle('hidden');
+            // Close filter dropdown if open
+            if (itemsFilterDropdown) itemsFilterDropdown.classList.add('hidden');
+        });
+
+        // Prevent dropdown from closing when clicking inside it
+        itemsExportDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        if (itemsFilterDropdown && !itemsFilterDropdown.contains(e.target) && e.target !== itemsFilterBtn) {
+            itemsFilterDropdown.classList.add('hidden');
+        }
+        if (itemsExportDropdown && !itemsExportDropdown.contains(e.target) && e.target !== itemsExportBtn) {
+            itemsExportDropdown.classList.add('hidden');
+        }
+    });
+
+    // Filter change handlers - apply filters when changed
+    if (itemsCategoryFilter) {
+        itemsCategoryFilter.addEventListener('change', () => {
+            paginationState.items.page = 1; // Reset to first page
+            render();
+        });
+    }
+    if (itemsStatusFilter) {
+        itemsStatusFilter.addEventListener('change', () => {
+            paginationState.items.page = 1; // Reset to first page
+            render();
+        });
+    }
+
     // Stock Specific Filters
-    if (stockSearch) stockSearch.addEventListener('input', render);
-    if (stockTypeFilter) stockTypeFilter.addEventListener('change', render);
-    if (stockDateFilter) stockDateFilter.addEventListener('change', render);
+    if (stockFromDate) stockFromDate.addEventListener('change', render);
+    if (stockToDate) stockToDate.addEventListener('change', render);
 }
 
 function setupModal() {
@@ -282,7 +350,6 @@ function renderCategories() {
                     <input type="checkbox" class="custom-checkbox" onclick="toggleSelectAll(this)">
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categories</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items Count</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
@@ -291,19 +358,15 @@ function renderCategories() {
     `;
 
     if (paginatedData.length === 0) {
-        html += `<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No categories found</td></tr>`;
+        html += `<tr><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No categories found</td></tr>`;
     } else {
         html += paginatedData.map(c => {
-            // Calculate items count
-            const count = store.items.filter(i => i.categoryId === c.id).length;
-
             return `
             <tr class="hover:bg-black/5 transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap">
                     <input type="checkbox" class="custom-checkbox" onclick="toggleRow(this)">
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${c.name}</td>
-                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${count} items</td>
                  <td class="px-6 py-4 whitespace-nowrap">
                     <span style="border-radius: 50px !important;" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-[50px] ${c.status === 'active' ? 'bg-[#15803d] text-white' : 'bg-gray-300 text-gray-800'}">
                         ${c.status ? (c.status.charAt(0).toUpperCase() + c.status.slice(1)) : 'Active'}
@@ -330,10 +393,18 @@ function renderItems() {
     // Use specific items search input
     const query = itemsSearch ? itemsSearch.value.toLowerCase() : '';
 
-    const filtered = store.items.filter(i =>
-        i.name.toLowerCase().includes(query) ||
-        i.code.toLowerCase().includes(query)
-    );
+    // Get filter values
+    const categoryFilter = document.getElementById('items-category-filter');
+    const statusFilter = document.getElementById('items-status-filter');
+    const categoryValue = categoryFilter ? categoryFilter.value : '';
+    const statusValue = statusFilter ? statusFilter.value : '';
+
+    const filtered = store.items.filter(i => {
+        const matchesSearch = i.name.toLowerCase().includes(query) || i.code.toLowerCase().includes(query);
+        const matchesCategory = categoryValue ? i.categoryId === parseInt(categoryValue) : true;
+        const matchesStatus = statusValue ? i.status === statusValue : true;
+        return matchesSearch && matchesCategory && matchesStatus;
+    });
 
     const totalItems = filtered.length;
     const { page, limit } = paginationState.items;
@@ -349,9 +420,8 @@ function renderItems() {
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UOM</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Default Price</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
@@ -360,7 +430,7 @@ function renderItems() {
     `;
 
     if (paginatedData.length === 0) {
-        html += `<tr><td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">No items found</td></tr>`;
+        html += `<tr><td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No items found</td></tr>`;
     } else {
         html += paginatedData.map(i => {
             return `
@@ -370,9 +440,8 @@ function renderItems() {
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${i.name}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${i.uom || '-'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹${i.price.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${i.stock}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${i.price.toFixed(2)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${i.createdBy || 'Admin'}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span style="border-radius: 50px !important;" onclick="toggleItemStatus(${i.id})" class="cursor-pointer px-2 inline-flex text-xs leading-5 font-semibold rounded-[50px] ${i.status === 'active' ? 'bg-[#15803d] text-white' : 'bg-gray-300 text-gray-800'}">
                         ${i.status.charAt(0).toUpperCase() + i.status.slice(1)}
@@ -398,15 +467,21 @@ function renderStock() {
     const tbody = document.getElementById('stock-table');
 
     // Get filter values
-    const sQuery = stockSearch ? stockSearch.value.toLowerCase() : '';
-    const typeValue = stockTypeFilter ? stockTypeFilter.value : '';
-    const dateValue = stockDateFilter ? stockDateFilter.value : '';
+    const fromDateValue = stockFromDate ? stockFromDate.value : '';
+    const toDateValue = stockToDate ? stockToDate.value : '';
 
     const filtered = store.stockLogs.filter(l => {
-        const matchesSearch = l.itemName.toLowerCase().includes(sQuery) || l.reason.toLowerCase().includes(sQuery);
-        const matchesType = typeValue ? l.type === typeValue : true;
-        const matchesDate = dateValue ? l.date === dateValue : true;
-        return matchesSearch && matchesType && matchesDate;
+        // Date range filtering
+        let matchesDateRange = true;
+        if (fromDateValue && toDateValue) {
+            matchesDateRange = l.date >= fromDateValue && l.date <= toDateValue;
+        } else if (fromDateValue) {
+            matchesDateRange = l.date >= fromDateValue;
+        } else if (toDateValue) {
+            matchesDateRange = l.date <= toDateValue;
+        }
+
+        return matchesDateRange;
     });
 
     const totalItems = filtered.length;
@@ -421,11 +496,14 @@ function renderStock() {
                 <th class="px-6 py-3 text-left">
                     <input type="checkbox" class="custom-checkbox" onclick="toggleSelectAll(this)">
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice#</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Extra Note</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
         </thead>
@@ -433,22 +511,25 @@ function renderStock() {
     `;
 
     if (paginatedData.length === 0) {
-        html += `<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No logs found</td></tr>`;
+        html += `<tr><td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">No logs found</td></tr>`;
     } else {
         html += paginatedData.map(l => `
             <tr class="hover:bg-black/5 transition-colors">
                  <td class="px-6 py-4 whitespace-nowrap">
                     <input type="checkbox" class="custom-checkbox" onclick="toggleRow(this)">
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${l.date}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${l.invoiceNo || '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${l.itemName}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                     <span style="border-radius: 50px !important;" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-[50px] ${l.type === 'in' ? 'bg-[#15803d] text-white' : 'bg-red-700 text-white'}">
-                        ${l.type.toUpperCase()}
+                        ${l.type === 'in' ? 'Received' : 'Consumed'}
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${l.quantity}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${l.reason}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹${l.unitPrice ? l.unitPrice.toFixed(2) : '0.00'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">₹${l.total ? l.total.toFixed(2) : '0.00'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${l.extraNote || '-'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${l.date}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button onclick="toggleActionMenu(event, ${l.id}, 'stock')" class="action-btn text-gray-400 hover:text-gray-600 focus:outline-none">
                         <i data-lucide="more-vertical" class="w-5 h-5"></i>
@@ -548,7 +629,7 @@ function changeLimit(type, newLimit) {
 function openAddModal() {
     modalOverlay.classList.remove('hidden');
     if (currentTab === 'categories') {
-        modalTitle.textContent = 'Add Item Group';
+        modalTitle.textContent = 'Add Item Category';
         modalContent.innerHTML = `
             <form id="add-category-form" class="space-y-4">
                 <div>
@@ -576,7 +657,7 @@ function openAddModal() {
         document.getElementById('add-category-form').onsubmit = handleAddCategory;
 
     } else if (currentTab === 'items') {
-        modalTitle.textContent = 'Add Inventory Item';
+        modalTitle.textContent = 'Add Raw Item Template';
         const catOptions = store.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
         modalContent.innerHTML = `
             <form id="add-item-form" class="space-y-4">
@@ -611,7 +692,7 @@ function openAddModal() {
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Price ($)</label>
+                        <label class="block text-sm font-medium text-gray-700">Price (₹)</label>
                         <input type="number" step="0.01" name="price" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
                     </div>
                     <div>
@@ -643,31 +724,49 @@ function openAddModal() {
     } else {
         // Stock Entry Modal
         modalTitle.textContent = 'Add Stock Entry';
-        const itemOptions = store.items.map(i => `<option value="${i.id}">${i.name} (Cur: ${i.stock})</option>`).join('');
+        const itemOptions = store.items.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name} (Stock: ${i.stock})</option>`).join('');
         modalContent.innerHTML = `
             <form id="add-stock-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Select Item</label>
-                    <select name="itemId" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
-                        ${itemOptions}
-                    </select>
-                </div>
                 <div class="grid grid-cols-2 gap-4">
-                     <div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Invoice Number</label>
+                        <input type="text" name="invoiceNo" placeholder="INV-XXX" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-gray-700">Entry Type</label>
                         <select name="type" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
                             <option value="in">Stock IN (+)</option>
                             <option value="out">Stock OUT (-)</option>
                         </select>
                     </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Select Item</label>
+                    <select name="itemId" id="stock-item-select" onchange="updateStockPrice()" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                        ${itemOptions}
+                    </select>
+                </div>
+                <div class="grid grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Quantity</label>
-                        <input type="number" name="quantity" min="1" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                        <input type="number" name="quantity" id="stock-quantity" min="1" required onchange="calculateTotal()" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Unit Price (₹)</label>
+                        <input type="number" name="unitPrice" id="stock-unit-price" step="0.01" required onchange="calculateTotal()" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Total (₹)</label>
+                        <input type="number" name="total" id="stock-total" step="0.01" readonly class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-50 focus:outline-none sm:text-sm font-semibold">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Reason / Supplier</label>
                     <input type="text" name="reason" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Extra Note (Optional)</label>
+                    <textarea name="extraNote" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"></textarea>
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
@@ -676,6 +775,8 @@ function openAddModal() {
             </form>
         `;
         document.getElementById('add-stock-form').onsubmit = handleAddStock;
+        // Initialize price from first item
+        updateStockPrice();
     }
 }
 
@@ -717,15 +818,43 @@ function handleAddItem(e) {
         store.stockLogs.unshift({
             id: Date.now(),
             date: new Date().toISOString().split('T')[0],
+            invoiceNo: '',
             itemName: newItem.name,
             type: 'in',
             quantity: newItem.stock,
-            reason: 'Opening Stock'
+            unitPrice: newItem.price,
+            total: newItem.stock * newItem.price,
+            reason: 'Opening Stock',
+            extraNote: ''
         });
     }
 
     closeModal();
     render();
+}
+
+// Helper functions for stock modal
+function updateStockPrice() {
+    const select = document.getElementById('stock-item-select');
+    const priceInput = document.getElementById('stock-unit-price');
+    if (select && priceInput) {
+        const selectedOption = select.options[select.selectedIndex];
+        const price = selectedOption.getAttribute('data-price');
+        priceInput.value = price || '0';
+        calculateTotal();
+    }
+}
+
+function calculateTotal() {
+    const quantity = document.getElementById('stock-quantity');
+    const unitPrice = document.getElementById('stock-unit-price');
+    const total = document.getElementById('stock-total');
+
+    if (quantity && unitPrice && total) {
+        const qty = parseFloat(quantity.value) || 0;
+        const price = parseFloat(unitPrice.value) || 0;
+        total.value = (qty * price).toFixed(2);
+    }
 }
 
 function handleAddStock(e) {
@@ -734,7 +863,11 @@ function handleAddStock(e) {
     const itemId = parseInt(formData.get('itemId'));
     const type = formData.get('type');
     const qty = parseInt(formData.get('quantity'));
+    const unitPrice = parseFloat(formData.get('unitPrice'));
+    const total = parseFloat(formData.get('total'));
     const reason = formData.get('reason');
+    const invoiceNo = formData.get('invoiceNo');
+    const extraNote = formData.get('extraNote');
 
     const item = store.items.find(i => i.id === itemId);
     if (!item) return;
@@ -754,10 +887,14 @@ function handleAddStock(e) {
     store.stockLogs.unshift({
         id: Date.now(),
         date: new Date().toISOString().split('T')[0],
+        invoiceNo: invoiceNo || '',
         itemName: item.name,
         type: type,
         quantity: qty,
-        reason: reason
+        unitPrice: unitPrice,
+        total: total,
+        reason: reason,
+        extraNote: extraNote || ''
     });
 
     closeModal();
@@ -795,6 +932,35 @@ function editCategory(id) {
 
 function editItem(id) {
     alert('Edit feature would open modal pre-filled. Simplified for demo.');
+}
+
+// Export Functions
+function exportItems(format) {
+    if (format === 'pdf') {
+        alert('Exporting items as PDF... (Feature to be implemented)');
+    } else if (format === 'excel') {
+        alert('Exporting items as Excel... (Feature to be implemented)');
+    }
+    // Close dropdown after export
+    const exportDropdown = document.getElementById('items-export-dropdown');
+    if (exportDropdown) exportDropdown.classList.add('hidden');
+}
+
+// Populate category filter dropdown
+function populateCategoryFilter() {
+    const categoryFilter = document.getElementById('items-category-filter');
+    if (categoryFilter && store.categories) {
+        // Clear existing options except "All Categories"
+        categoryFilter.innerHTML = '<option value="">All Categories</option>';
+
+        // Add category options
+        store.categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            categoryFilter.appendChild(option);
+        });
+    }
 }
 
 // Start

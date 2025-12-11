@@ -95,17 +95,83 @@
         <div class="p-8 max-w-[1600px] mx-auto space-y-6">
 
             <!-- Daily View -->
-            <div id="daily-view" class="bg-white rounded-lg shadow overflow-hidden fade-in">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-                    <h3 class="text-lg font-medium text-gray-900">Today's Tasks</h3>
-                    <div class="text-sm text-gray-500">
-                        Date: <span class="font-semibold text-gray-900" id="current-date"></span>
+            <div id="daily-view" class="fade-in">
+                <!-- Header with Date -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Today's Tasks</h2>
+                    <div class="text-sm text-gray-500 font-medium">
+                        Date: <span class="text-gray-900" id="current-date"></span>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table id="daily-table" class="min-w-full divide-y divide-gray-200">
-                        <!-- JS Rendered -->
-                    </table>
+
+                <!-- Stats & Filter Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Daily Progress -->
+                    <div
+                        class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between h-40">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-sm font-semibold text-gray-700">Daily Progress</h3>
+                            <div class="text-green-500">
+                                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl font-bold text-gray-900" id="progress-percent">0%</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1"><span id="progress-text">0 of 0 tasks</span> completed
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Pending Tasks -->
+                    <div
+                        class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between h-40">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-sm font-semibold text-gray-700">Pending Tasks</h3>
+                            <div class="text-orange-500">
+                                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl font-bold text-gray-900" id="pending-count">0</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Requires attention</p>
+                        </div>
+                    </div>
+
+                    <!-- Shift Filter -->
+                    <div
+                        class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between h-40">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-sm font-semibold text-gray-700">Shift Filter</h3>
+                            <div class="text-[#4a90e2]">
+                                <i data-lucide="clock" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <select id="shift-filter-select" onchange="renderChecklist()"
+                                class="block w-full pl-4 pr-10 py-2.5 text-sm bg-gray-50 border-transparent rounded-lg focus:ring-[#4a90e2] focus:border-[#4a90e2] text-gray-700 font-medium">
+                                <option value="All">All Shifts</option>
+                                <option value="Morning">Morning</option>
+                                <option value="Evening">Evening</option>
+                                <option value="Night">Night</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                <i data-lucide="chevron-down" class="h-4 w-4 text-gray-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table id="daily-table" class="min-w-full divide-y divide-gray-200">
+                            <!-- JS Rendered -->
+                        </table>
+                    </div>
                 </div>
             </div>
 
