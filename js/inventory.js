@@ -12,9 +12,9 @@ const store = {
     ],
     // Log entries for stock movement
     stockLogs: [
-        { id: 1, date: '2023-10-25', invoiceNo: 'INV-001', itemName: 'Cola 300ml', type: 'in', quantity: 50, unitPrice: 2.50, total: 125.00, reason: 'Initial Stock', extraNote: 'First batch' },
-        { id: 2, date: '2023-10-26', invoiceNo: 'INV-002', itemName: 'Cheese Burger', type: 'in', quantity: 30, unitPrice: 12.00, total: 360.00, reason: 'Weekly Supply', extraNote: 'Fresh ingredients' },
-        { id: 3, date: '2023-10-27', invoiceNo: '', itemName: 'Cola 300ml', type: 'out', quantity: 15, unitPrice: 2.50, total: 37.50, reason: 'Daily Sales', extraNote: 'Lunch rush' }
+        { id: 1, date: '2023-10-25', invoiceNo: 'INV-001', itemName: 'Cola 300ml', inventoryFrom: 'company_warehouse', type: 'in', uom: 'Can', quantity: 50, unitPrice: 2.50, total: 125.00, extraNote: 'First batch' },
+        { id: 2, date: '2023-10-26', invoiceNo: 'INV-002', itemName: 'Cheese Burger', inventoryFrom: 'store_purchase', type: 'in', uom: 'Pcs', quantity: 30, unitPrice: 12.00, total: 360.00, extraNote: 'Fresh ingredients' },
+        { id: 3, date: '2023-10-27', invoiceNo: '', itemName: 'Cola 300ml', inventoryFrom: 'company_warehouse', type: 'out', uom: 'Can', quantity: 15, unitPrice: 2.50, total: 37.50, extraNote: 'Lunch rush' }
     ]
 };
 
@@ -498,7 +498,9 @@ function renderStock() {
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice#</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inventory From</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UoM</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
@@ -511,20 +513,28 @@ function renderStock() {
     `;
 
     if (paginatedData.length === 0) {
-        html += `<tr><td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">No logs found</td></tr>`;
+        html += `<tr><td colspan="12" class="px-6 py-4 text-center text-sm text-gray-500">No logs found</td></tr>`;
     } else {
-        html += paginatedData.map(l => `
+        html += paginatedData.map(l => {
+            // Format inventory source for display
+            const inventoryFromDisplay = l.inventoryFrom
+                ? (l.inventoryFrom === 'company_warehouse' ? 'Company Warehouse' : 'Store Purchase')
+                : '-';
+
+            return `
             <tr class="hover:bg-black/5 transition-colors">
                  <td class="px-6 py-4 whitespace-nowrap">
                     <input type="checkbox" class="custom-checkbox" onclick="toggleRow(this)">
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${l.invoiceNo || '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${l.itemName}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${inventoryFromDisplay}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                     <span style="border-radius: 50px !important;" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-[50px] ${l.type === 'in' ? 'bg-[#15803d] text-white' : 'bg-red-700 text-white'}">
                         ${l.type === 'in' ? 'Received' : 'Consumed'}
                     </span>
                 </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${l.uom || '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${l.quantity}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹${l.unitPrice ? l.unitPrice.toFixed(2) : '0.00'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">₹${l.total ? l.total.toFixed(2) : '0.00'}</td>
@@ -536,7 +546,7 @@ function renderStock() {
                     </button>
                 </td>
             </tr>
-        `).join('');
+        `}).join('');
     }
 
     html += `</tbody>`;
@@ -722,61 +732,78 @@ function openAddModal() {
         `;
         document.getElementById('add-item-form').onsubmit = handleAddItem;
     } else {
-        // Stock Entry Modal
+        // Stock Entry Modal - Enhanced with multiple items support
         modalTitle.textContent = 'Add Stock Entry';
-        const itemOptions = store.items.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name} (Stock: ${i.stock})</option>`).join('');
+
+        // Reset counter for new modal
+        stockItemRowCounter = 0;
+
         modalContent.innerHTML = `
             <form id="add-stock-form" class="space-y-4">
+                <!-- Header Information -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Invoice Number</label>
-                        <input type="text" name="invoiceNo" placeholder="INV-XXX" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                        <label class="block text-sm font-medium text-gray-700">Invoice Number <span class="text-red-500">*</span></label>
+                        <input type="text" id="stock-invoice-no" placeholder="INV-XXX" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Entry Type</label>
-                        <select name="type" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                        <label class="block text-sm font-medium text-gray-700">Date <span class="text-red-500">*</span></label>
+                        <input type="date" id="stock-date" required value="${new Date().toISOString().split('T')[0]}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Inventory From <span class="text-red-500">*</span></label>
+                        <select id="stock-inventory-from" required class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                            <option value="company_warehouse">Company Warehouse</option>
+                            <option value="store_purchase">Store Purchase</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Entry Type <span class="text-red-500">*</span></label>
+                        <select id="stock-type" required class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
                             <option value="in">Stock IN (+)</option>
                             <option value="out">Stock OUT (-)</option>
                         </select>
                     </div>
                 </div>
+
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Select Item</label>
-                    <select name="itemId" id="stock-item-select" onchange="updateStockPrice()" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
-                        ${itemOptions}
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Extra Note (Optional)</label>
+                    <textarea id="stock-extra-note" rows="2" placeholder="Add any additional notes here..." class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"></textarea>
                 </div>
-                <div class="grid grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Quantity</label>
-                        <input type="number" name="quantity" id="stock-quantity" min="1" required onchange="calculateTotal()" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+
+                <!-- Items Section -->
+                <div class="border-t pt-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-sm font-semibold text-gray-900">Items</h4>
+                        <button type="button" onclick="addStockItemRow()" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none">
+                            <i data-lucide="plus" class="w-3 h-3 mr-1"></i>
+                            Add Item
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Unit Price (₹)</label>
-                        <input type="number" name="unitPrice" id="stock-unit-price" step="0.01" required onchange="calculateTotal()" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Total (₹)</label>
-                        <input type="number" name="total" id="stock-total" step="0.01" readonly class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-50 focus:outline-none sm:text-sm font-semibold">
+
+                    <div id="stock-items-container" class="space-y-3">
+                        <!-- Items will be added here dynamically -->
                     </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Reason / Supplier</label>
-                    <input type="text" name="reason" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Extra Note (Optional)</label>
-                    <textarea name="extraNote" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"></textarea>
-                </div>
-                <div class="flex justify-end gap-3 pt-2">
+
+                <!-- Form Actions -->
+                <div class="flex justify-end gap-3 pt-4 border-t">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
                     <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4]">Save Entry</button>
                 </div>
             </form>
         `;
+
         document.getElementById('add-stock-form').onsubmit = handleAddStock;
-        // Initialize price from first item
-        updateStockPrice();
+
+        // Add first item row by default
+        setTimeout(() => {
+            addStockItemRow();
+            if (window.lucide) lucide.createIcons();
+        }, 0);
     }
 }
 
@@ -833,22 +860,113 @@ function handleAddItem(e) {
     render();
 }
 
-// Helper functions for stock modal
-function updateStockPrice() {
-    const select = document.getElementById('stock-item-select');
-    const priceInput = document.getElementById('stock-unit-price');
-    if (select && priceInput) {
-        const selectedOption = select.options[select.selectedIndex];
-        const price = selectedOption.getAttribute('data-price');
-        priceInput.value = price || '0';
-        calculateTotal();
+// Helper functions for stock modal - Enhanced for multiple items
+let stockItemRowCounter = 0;
+
+function addStockItemRow() {
+    const container = document.getElementById('stock-items-container');
+    if (!container) return;
+
+    const rowId = ++stockItemRowCounter;
+    const itemOptions = store.items.map(i =>
+        `<option value="${i.id}" data-price="${i.price}" data-uom="${i.uom || ''}">${i.name} (Stock: ${i.stock})</option>`
+    ).join('');
+
+    const rowHTML = `
+        <div class="stock-item-row border border-gray-200 rounded-lg p-4 bg-gray-50" data-row-id="${rowId}">
+            <div class="flex items-start justify-between mb-3">
+                <h5 class="text-xs font-medium text-gray-700">Item #${rowId}</h5>
+                <button type="button" onclick="removeStockItemRow(${rowId})" class="text-red-500 hover:text-red-700 focus:outline-none">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Select Item <span class="text-red-500">*</span></label>
+                    <select class="item-select block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                            onchange="updateItemRowData(${rowId})" required>
+                        ${itemOptions}
+                    </select>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">UoM <span class="text-red-500">*</span></label>
+                        <input type="text" class="item-uom block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                               placeholder="e.g. Pcs, Box" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Quantity <span class="text-red-500">*</span></label>
+                        <input type="number" class="item-quantity block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                               min="1" required onchange="calculateItemTotal(${rowId})">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Unit Price (₹) <span class="text-red-500">*</span></label>
+                        <input type="number" class="item-price block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                               step="0.01" required onchange="calculateItemTotal(${rowId})">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Total (₹)</label>
+                        <input type="number" class="item-total block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 text-sm font-semibold" 
+                               step="0.01" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.insertAdjacentHTML('beforeend', rowHTML);
+
+    // Initialize the first item's data
+    updateItemRowData(rowId);
+
+    if (window.lucide) lucide.createIcons();
+}
+
+function removeStockItemRow(rowId) {
+    const row = document.querySelector(`[data-row-id="${rowId}"]`);
+    if (row) {
+        const container = document.getElementById('stock-items-container');
+        // Prevent removing the last item
+        if (container.querySelectorAll('.stock-item-row').length > 1) {
+            row.remove();
+        } else {
+            alert('At least one item is required!');
+        }
     }
 }
 
-function calculateTotal() {
-    const quantity = document.getElementById('stock-quantity');
-    const unitPrice = document.getElementById('stock-unit-price');
-    const total = document.getElementById('stock-total');
+function updateItemRowData(rowId) {
+    const row = document.querySelector(`[data-row-id="${rowId}"]`);
+    if (!row) return;
+
+    const select = row.querySelector('.item-select');
+    const uomInput = row.querySelector('.item-uom');
+    const priceInput = row.querySelector('.item-price');
+
+    if (select && uomInput && priceInput) {
+        const selectedOption = select.options[select.selectedIndex];
+        const price = selectedOption.getAttribute('data-price');
+        const uom = selectedOption.getAttribute('data-uom');
+
+        uomInput.value = uom || '';
+        priceInput.value = price || '0';
+
+        calculateItemTotal(rowId);
+    }
+}
+
+function calculateItemTotal(rowId) {
+    const row = document.querySelector(`[data-row-id="${rowId}"]`);
+    if (!row) return;
+
+    const quantity = row.querySelector('.item-quantity');
+    const unitPrice = row.querySelector('.item-price');
+    const total = row.querySelector('.item-total');
 
     if (quantity && unitPrice && total) {
         const qty = parseFloat(quantity.value) || 0;
@@ -859,42 +977,82 @@ function calculateTotal() {
 
 function handleAddStock(e) {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const itemId = parseInt(formData.get('itemId'));
-    const type = formData.get('type');
-    const qty = parseInt(formData.get('quantity'));
-    const unitPrice = parseFloat(formData.get('unitPrice'));
-    const total = parseFloat(formData.get('total'));
-    const reason = formData.get('reason');
-    const invoiceNo = formData.get('invoiceNo');
-    const extraNote = formData.get('extraNote');
 
-    const item = store.items.find(i => i.id === itemId);
-    if (!item) return;
+    // Get header information
+    const invoiceNo = document.getElementById('stock-invoice-no').value;
+    const date = document.getElementById('stock-date').value;
+    const inventoryFrom = document.getElementById('stock-inventory-from').value;
+    const type = document.getElementById('stock-type').value;
+    const extraNote = document.getElementById('stock-extra-note').value;
 
-    // Update Item Stock
-    if (type === 'in') {
-        item.stock += qty;
-    } else {
-        if (item.stock < qty) {
-            alert('Insufficient stock!');
-            return;
-        }
-        item.stock -= qty;
+    // Get all item rows
+    const itemRows = document.querySelectorAll('.stock-item-row');
+
+    if (itemRows.length === 0) {
+        alert('Please add at least one item!');
+        return;
     }
 
-    // Add Log
-    store.stockLogs.unshift({
-        id: Date.now(),
-        date: new Date().toISOString().split('T')[0],
-        invoiceNo: invoiceNo || '',
-        itemName: item.name,
-        type: type,
-        quantity: qty,
-        unitPrice: unitPrice,
-        total: total,
-        reason: reason,
-        extraNote: extraNote || ''
+    let hasError = false;
+    const stockEntries = [];
+
+    itemRows.forEach(row => {
+        const itemSelect = row.querySelector('.item-select');
+        const itemId = parseInt(itemSelect.value);
+        const itemName = itemSelect.options[itemSelect.selectedIndex].text.split(' (Stock:')[0];
+        const uom = row.querySelector('.item-uom').value;
+        const quantity = parseInt(row.querySelector('.item-quantity').value);
+        const unitPrice = parseFloat(row.querySelector('.item-price').value);
+        const total = parseFloat(row.querySelector('.item-total').value);
+
+        const item = store.items.find(i => i.id === itemId);
+        if (!item) {
+            hasError = true;
+            return;
+        }
+
+        // Validate stock for OUT entries
+        if (type === 'out' && item.stock < quantity) {
+            alert(`Insufficient stock for ${item.name}! Available: ${item.stock}`);
+            hasError = true;
+            return;
+        }
+
+        stockEntries.push({
+            item,
+            itemName,
+            uom,
+            quantity,
+            unitPrice,
+            total
+        });
+    });
+
+    if (hasError) return;
+
+    // Process all entries
+    stockEntries.forEach(entry => {
+        // Update Item Stock
+        if (type === 'in') {
+            entry.item.stock += entry.quantity;
+        } else {
+            entry.item.stock -= entry.quantity;
+        }
+
+        // Add Log Entry
+        store.stockLogs.unshift({
+            id: Date.now() + Math.random(), // Ensure unique IDs
+            date: date,
+            invoiceNo: invoiceNo || '',
+            itemName: entry.itemName,
+            inventoryFrom: inventoryFrom,
+            type: type,
+            uom: entry.uom,
+            quantity: entry.quantity,
+            unitPrice: entry.unitPrice,
+            total: entry.total,
+            extraNote: extraNote || ''
+        });
     });
 
     closeModal();
