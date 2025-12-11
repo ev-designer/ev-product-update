@@ -321,6 +321,28 @@
                             </div>
                         </div>
 
+                        <!-- Export Dropdown -->
+                        <div class="relative">
+                            <button id="stock-export-btn"
+                                class="p-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                            </button>
+                            <!-- Dropdown Menu -->
+                            <div id="stock-export-dropdown"
+                                class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                                <div class="py-1">
+                                    <button onclick="exportStock('pdf')"
+                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Export to PDF
+                                    </button>
+                                    <button onclick="exportStock('excel')"
+                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Export to Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- New Entry Button -->
                         <button onclick="openAddModal()"
                             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">

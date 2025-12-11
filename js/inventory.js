@@ -209,6 +209,27 @@ function setupSearch() {
     // Stock Specific Filters
     if (stockFromDate) stockFromDate.addEventListener('change', render);
     if (stockToDate) stockToDate.addEventListener('change', render);
+
+    // Stock Export Dropdown
+    const stockExportBtn = document.getElementById('stock-export-btn');
+    const stockExportDropdown = document.getElementById('stock-export-dropdown');
+
+    if (stockExportBtn && stockExportDropdown) {
+        stockExportBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            stockExportDropdown.classList.toggle('hidden');
+        });
+
+        // Add to global close listener if not covered
+        // Note: The global listener below covers itemsExportDropdown, we should extend it or add specific logic here
+        // Ideally, we modify the existing global listener, but appending here is safer
+        document.addEventListener('click', (e) => {
+            if (!stockExportDropdown.contains(e.target) && e.target !== stockExportBtn) {
+                stockExportDropdown.classList.add('hidden');
+            }
+        });
+    }
+    if (stockToDate) stockToDate.addEventListener('change', render);
 }
 
 function setupModal() {
@@ -1115,6 +1136,16 @@ function exportItems(format) {
     }
     // Close dropdown after export
     const exportDropdown = document.getElementById('items-export-dropdown');
+    if (exportDropdown) exportDropdown.classList.add('hidden');
+}
+
+function exportStock(format) {
+    if (format === 'pdf') {
+        alert('Exporting stock entries as PDF... (Feature to be implemented)');
+    } else if (format === 'excel') {
+        alert('Exporting stock entries as Excel... (Feature to be implemented)');
+    }
+    const exportDropdown = document.getElementById('stock-export-dropdown');
     if (exportDropdown) exportDropdown.classList.add('hidden');
 }
 
