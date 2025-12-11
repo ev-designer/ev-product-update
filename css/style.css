@@ -6,7 +6,7 @@ body {
 /* Inventory Page - Zero Border Radius */
 #inventory-page table,
 #inventory-page button,
-#inventory-page input,
+#inventory-page input:not(.toggle-checkbox),
 #inventory-page select,
 #inventory-page .rounded-md,
 #inventory-page .rounded-lg,

@@ -764,22 +764,19 @@ function openAddModal() {
                     </div>
                     <div class="col-span-4">
                         <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Extra Note</label>
-                         <input type="text" id="stock-extra-note" placeholder="Add any additional notes here..." class="block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
+                         <textarea id="stock-extra-note" placeholder="Add any additional notes here..." class="block w-full border border-gray-300 shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm resize-y" rows="2"></textarea>
                     </div>
                 </div>
 
                 <!-- Items Section -->
                 <div>
-                   <div class="flex items-center justify-between mb-2">
+                   <div class="mb-2">
                         <h4 class="text-sm font-bold text-gray-800">Items List</h4>
-                        <button type="button" onclick="addStockItemRow()" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none shadow-sm">
-                            <i data-lucide="plus" class="w-3 h-3 mr-1"></i>
-                            Add Item
-                        </button>
                     </div>
 
                     <!-- Column Headers -->
-                    <div class="grid grid-cols-12 gap-3 px-2 py-2 bg-gray-100 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider rounded-t-lg">
+                    <!-- Column Headers -->
+                    <div class="grid grid-cols-12 gap-3 px-2 py-2 bg-gray-100 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <div class="col-span-4">Item Name <span class="text-red-500">*</span></div>
                         <div class="col-span-2">UoM <span class="text-red-500">*</span></div>
                         <div class="col-span-2">Quantity <span class="text-red-500">*</span></div>
@@ -788,8 +785,16 @@ function openAddModal() {
                         <div class="col-span-1 text-center">Action</div>
                     </div>
 
-                    <div id="stock-items-container" class="border border-t-0 border-gray-200 rounded-b-lg divide-y divide-gray-200 bg-white max-h-[300px] overflow-y-auto">
+                    <div id="stock-items-container" class="border border-t-0 border-gray-200 divide-y divide-gray-200 bg-white max-h-[300px] overflow-y-auto">
                         <!-- Items will be added here dynamically -->
+                    </div>
+                    
+                    <!-- Add Item Button (Moved Position) -->
+                    <div class="mt-2 text-left">
+                        <button type="button" onclick="addStockItemRow()" class="inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                            Add Item
+                        </button>
                     </div>
                 </div>
 
@@ -866,35 +871,35 @@ function addStockItemRow() {
     const rowHTML = `
         <div class="stock-item-row grid grid-cols-12 gap-3 p-2 items-center hover:bg-gray-50" data-row-id="${rowId}">
             <div class="col-span-4">
-                <select class="item-select block w-full bg-white border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                <select class="item-select block w-full bg-white border border-gray-300 rounded-none shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
                         onchange="updateItemRowData(${rowId})" required>
                     ${itemOptions}
                 </select>
             </div>
             
             <div class="col-span-2">
-                <input type="text" class="item-uom block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
-                       placeholder="UoM" required>
+                <input type="text" class="item-uom block w-full bg-gray-50 border border-gray-300 rounded-none shadow-sm py-1.5 px-2 focus:outline-none text-sm text-gray-500 cursor-not-allowed" 
+                       placeholder="UoM" required disabled>
             </div>
             
             <div class="col-span-2">
-                <input type="number" class="item-quantity block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                <input type="number" class="item-quantity block w-full border border-gray-300 rounded-none shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
                        min="1" required onchange="calculateItemTotal(${rowId})">
             </div>
             
             <div class="col-span-2">
-                <input type="number" class="item-price block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                <input type="number" class="item-price block w-full border border-gray-300 rounded-none shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
                        step="0.01" required onchange="calculateItemTotal(${rowId})">
             </div>
             
             <div class="col-span-1">
-                <input type="number" class="item-total block w-full border-none bg-transparent text-sm font-semibold text-gray-900 focus:ring-0 p-0 text-right" 
-                       step="0.01" readonly tabindex="-1" value="0.00">
+                <input type="number" class="item-total block w-full border border-gray-300 rounded-none shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm text-right" 
+                       step="0.01" onchange="calculateItemPrice(${rowId})" value="0.00">
             </div>
             
             <div class="col-span-1 text-center">
                 <button type="button" onclick="removeStockItemRow(${rowId})" class="text-red-500 hover:text-red-700 focus:outline-none p-1 rounded-full hover:bg-red-50 transition-colors" title="Remove Item">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                 </button>
             </div>
         </div>
@@ -919,7 +924,7 @@ function closeModal() {
 }
 
 function removeStockItemRow(rowId) {
-    const row = document.querySelector(`[data-row-id="${rowId}"]`);
+    const row = document.querySelector(`[data - row - id= "${rowId}"]`);
     if (row) {
         const container = document.getElementById('stock-items-container');
         // Prevent removing the last item
@@ -932,7 +937,7 @@ function removeStockItemRow(rowId) {
 }
 
 function updateItemRowData(rowId) {
-    const row = document.querySelector(`[data-row-id="${rowId}"]`);
+    const row = document.querySelector(`[data - row - id= "${rowId}"]`);
     if (!row) return;
 
     const select = row.querySelector('.item-select');
@@ -952,7 +957,7 @@ function updateItemRowData(rowId) {
 }
 
 function calculateItemTotal(rowId) {
-    const row = document.querySelector(`[data-row-id="${rowId}"]`);
+    const row = document.querySelector(`[data - row - id= "${rowId}"]`);
     if (!row) return;
 
     const quantity = row.querySelector('.item-quantity');
@@ -963,6 +968,24 @@ function calculateItemTotal(rowId) {
         const qty = parseFloat(quantity.value) || 0;
         const price = parseFloat(unitPrice.value) || 0;
         total.value = (qty * price).toFixed(2);
+    }
+}
+
+function calculateItemPrice(rowId) {
+    const row = document.querySelector(`[data-row-id="${rowId}"]`);
+    if (!row) return;
+
+    const quantity = row.querySelector('.item-quantity');
+    const unitPrice = row.querySelector('.item-price');
+    const total = row.querySelector('.item-total');
+
+    if (quantity && unitPrice && total) {
+        const qty = parseFloat(quantity.value) || 0;
+        const tot = parseFloat(total.value) || 0;
+
+        if (qty > 0) {
+            unitPrice.value = (tot / qty).toFixed(2);
+        }
     }
 }
 
@@ -1004,7 +1027,7 @@ function handleAddStock(e) {
 
         // Validate stock for OUT entries
         if (type === 'out' && item.stock < quantity) {
-            alert(`Insufficient stock for ${item.name}! Available: ${item.stock}`);
+            alert(`Insufficient stock for ${item.name}! Available: ${item.stock} `);
             hasError = true;
             return;
         }

@@ -11,6 +11,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            background-color: #fff;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 1.5px solid #4a90e2;
+            border-radius: 0px;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .custom-checkbox:checked {
+            background-color: #4a90e2;
+            border-color: #4a90e2;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 10 9 13 14 6'/%3e%3c/svg%3e");
+            background-size: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .custom-checkbox::before {
+            display: none;
+        }
+    </style>
 </head>
 
 <body class="flex h-screen overflow-hidden text-sm font-sans">
@@ -21,7 +52,7 @@
         <div class="h-16 flex items-center px-6 border-b border-gray-100">
             <a href="index.html" class="flex items-center gap-2">
                 <div
-                    class="w-8 h-8 bg-gradient-to-tr from-brand-500 to-cyan-400 rounded-lg flex items-center justify-center text-white font-bold">
+                    class="w-8 h-8 bg-gradient-to-tr from-brand-500 to-cyan-400 flex items-center justify-center text-white font-bold">
                     E</div>
                 <div class="flex flex-col">
                     <span class="font-bold text-lg text-slate-800 leading-tight">Enlight<span
@@ -36,7 +67,7 @@
             <div class="relative">
                 <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
                 <input type="text" placeholder="Search"
-                    class="w-full pl-9 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-500 text-sm">
+                    class="w-full pl-9 pr-8 py-2 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-1 focus:ring-brand-500 text-sm">
                 <i data-lucide="x-circle"
                     class="absolute right-3 top-2.5 w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600"></i>
             </div>
@@ -44,16 +75,15 @@
 
         <!-- Navigation -->
         <nav class="flex-1 overflow-y-auto px-3 space-y-1">
-            <a href="inventory.html" class="nav-item flex items-center px-3 py-2.5 rounded-md text-gray-600 group">
+            <a href="inventory.html" class="nav-item flex items-center px-3 py-2.5 text-gray-600 group">
                 <i data-lucide="package" class="w-4 h-4 mr-3"></i>
                 Inventory
             </a>
-            <a href="checklist.html"
-                class="nav-item active flex items-center px-3 py-2.5 rounded-md text-gray-600 group">
+            <a href="checklist.html" class="nav-item active flex items-center px-3 py-2.5 text-gray-600 group">
                 <i data-lucide="clipboard-list" class="w-4 h-4 mr-3"></i>
                 Checklist
             </a>
-            <a href="timesheet.html" class="nav-item flex items-center px-3 py-2.5 rounded-md text-gray-600 group">
+            <a href="timesheet.html" class="nav-item flex items-center px-3 py-2.5 text-gray-600 group">
                 <i data-lucide="clock" class="w-4 h-4 mr-3"></i>
                 Timesheet
             </a>
@@ -61,9 +91,9 @@
 
         <!-- User Profile -->
         <div class="border-t border-gray-200 p-4">
-            <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+            <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 transition-colors">
                 <img src="https://ui-avatars.com/api/?name=Steven+G&background=0D8ABC&color=fff" alt="User"
-                    class="w-9 h-9 rounded-full border border-gray-200">
+                    class="w-9 h-9 border border-gray-200">
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-gray-900 truncate">Steven G.</p>
                     <p class="text-xs text-gray-500 truncate">Admin</p>
@@ -88,6 +118,10 @@
                         class="checklist-tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">
                         Manage Templates
                     </button>
+                    <button data-tab="reports"
+                        class="checklist-tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">
+                        Report
+                    </button>
                 </div>
             </div>
         </header>
@@ -104,29 +138,26 @@
                     </div>
                 </div>
 
-                <!-- Stats & Filter Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <!-- Daily Progress -->
-                    <div
-                        class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between h-40">
+                <!-- Stats Layout -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Completed Tasks -->
+                    <div class="bg-white p-6 border border-gray-200 shadow-sm flex flex-col justify-between h-40">
                         <div class="flex justify-between items-start">
-                            <h3 class="text-sm font-semibold text-gray-700">Daily Progress</h3>
+                            <h3 class="text-sm font-semibold text-gray-700">Completed Tasks</h3>
                             <div class="text-green-500">
-                                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                                <i data-lucide="check-square" class="w-5 h-5"></i>
                             </div>
                         </div>
                         <div>
                             <div class="flex items-baseline gap-2">
-                                <span class="text-3xl font-bold text-gray-900" id="progress-percent">0%</span>
+                                <span class="text-3xl font-bold text-gray-900" id="completed-count">0</span>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1"><span id="progress-text">0 of 0 tasks</span> completed
-                            </p>
+                            <p class="text-xs text-gray-500 mt-1">Total tasks finished today</p>
                         </div>
                     </div>
 
                     <!-- Pending Tasks -->
-                    <div
-                        class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between h-40">
+                    <div class="bg-white p-6 border border-gray-200 shadow-sm flex flex-col justify-between h-40">
                         <div class="flex justify-between items-start">
                             <h3 class="text-sm font-semibold text-gray-700">Pending Tasks</h3>
                             <div class="text-orange-500">
@@ -140,37 +171,53 @@
                             <p class="text-xs text-gray-500 mt-1">Requires attention</p>
                         </div>
                     </div>
-
-                    <!-- Shift Filter -->
-                    <div
-                        class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between h-40">
-                        <div class="flex justify-between items-start">
-                            <h3 class="text-sm font-semibold text-gray-700">Shift Filter</h3>
-                            <div class="text-[#4a90e2]">
-                                <i data-lucide="clock" class="w-5 h-5"></i>
-                            </div>
-                        </div>
-                        <div class="relative">
-                            <select id="shift-filter-select" onchange="renderChecklist()"
-                                class="block w-full pl-4 pr-10 py-2.5 text-sm bg-gray-50 border-transparent rounded-lg focus:ring-[#4a90e2] focus:border-[#4a90e2] text-gray-700 font-medium">
-                                <option value="All">All Shifts</option>
-                                <option value="Morning">Morning</option>
-                                <option value="Evening">Evening</option>
-                                <option value="Night">Night</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-                                <i data-lucide="chevron-down" class="h-4 w-4 text-gray-500"></i>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Table Section -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table id="daily-table" class="min-w-full divide-y divide-gray-200">
-                            <!-- JS Rendered -->
-                        </table>
+                <!-- Kanban Board Section -->
+                <div id="daily-board" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Morning Column -->
+                    <div class="bg-gray-50 p-4 border border-gray-200 h-full">
+                        <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
+                            <h3 class="font-semibold text-gray-700 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+                                Morning
+                            </h3>
+                            <span class="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full"
+                                id="count-morning">0</span>
+                        </div>
+                        <div id="col-morning" class="space-y-3 min-h-[200px]">
+                            <!-- Cards injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Evening Column -->
+                    <div class="bg-gray-50 p-4 border border-gray-200 h-full">
+                        <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
+                            <h3 class="font-semibold text-gray-700 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+                                Evening
+                            </h3>
+                            <span class="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full"
+                                id="count-evening">0</span>
+                        </div>
+                        <div id="col-evening" class="space-y-3 min-h-[200px]">
+                            <!-- Cards injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Night Column -->
+                    <div class="bg-gray-50 p-4 border border-gray-200 h-full">
+                        <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
+                            <h3 class="font-semibold text-gray-700 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                                Night
+                            </h3>
+                            <span class="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full"
+                                id="count-night">0</span>
+                        </div>
+                        <div id="col-night" class="space-y-3 min-h-[200px]">
+                            <!-- Cards injected here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -179,16 +226,81 @@
             <div id="templates-view" class="hidden fade-in space-y-6">
                 <div class="flex items-center justify-end">
                     <button onclick="openChecklistModal()"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium shadow-sm text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a90e2] transition-colors">
                         <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                        New Template
+                        New Task
                     </button>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="bg-white border border-gray-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table id="templates-table" class="min-w-full divide-y divide-gray-200">
                             <!-- JS Rendered -->
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports View -->
+            <div id="reports-view" class="hidden fade-in space-y-6">
+                <!-- Filters Section -->
+                <div class="bg-white p-4 border border-gray-200 shadow-sm flex flex-wrap items-end gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">From Date</label>
+                        <input type="date" id="report-from-date"
+                            class="block w-full border border-gray-300 shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">To Date</label>
+                        <input type="date" id="report-to-date"
+                            class="block w-full border border-gray-300 shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
+                    </div>
+                    <div>
+                        <button onclick="generateReport()"
+                            class="px-4 py-2 border border-transparent text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none shadow-sm">
+                            Generate Report
+                        </button>
+                    </div>
+                    <div class="ml-auto flex gap-2">
+                        <button onclick="exportReport('pdf')"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            <i data-lucide="file-text" class="w-4 h-4 mr-2 text-red-500"></i>
+                            PDF
+                        </button>
+                        <button onclick="exportReport('excel')"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4 mr-2 text-green-500"></i>
+                            Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Table -->
+                <div class="bg-white shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table id="reports-table" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Date</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Task</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Shift</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="reports-table-body">
+                                <!-- JS Populated -->
+                            </tbody>
+                        </table>
+                        <div id="no-report-data" class="hidden p-8 text-center text-gray-500 text-sm">
+                            No data found for selected range.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -199,12 +311,12 @@
 
     <!-- Modal Overlay -->
     <div id="checklist-modal-overlay"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center">
-        <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center fade-in">
+        <div class="relative bg-white shadow-xl w-full max-w-md mx-4 overflow-hidden transform transition-all">
             <!-- Modal Header -->
-            <div class="flex justify-between items-center p-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-800" id="checklist-modal-title">Add Template</h3>
-                <button onclick="closeChecklistModal()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-medium text-gray-900" id="checklist-modal-title">Add Template</h3>
+                <button onclick="closeChecklistModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -213,6 +325,19 @@
                 <!-- Form injected via JS -->
             </div>
         </div>
+    </div>
+
+    <!-- Action Menu -->
+    <div id="action-menu" class="hidden fixed bg-white shadow-lg border border-gray-100 z-50 w-32 py-1">
+        <button id="action-open" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            Open
+        </button>
+        <button id="action-edit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            Edit
+        </button>
+        <button id="action-delete" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+            Delete
+        </button>
     </div>
 
     <script>
