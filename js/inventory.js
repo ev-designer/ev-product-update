@@ -637,7 +637,15 @@ function changeLimit(type, newLimit) {
 // --- Actions & Modals ---
 
 function openAddModal() {
+    const modalContainer = document.getElementById('modal-container');
     modalOverlay.classList.remove('hidden');
+
+    // Reset Modal Width to default first
+    if (modalContainer) {
+        modalContainer.classList.remove('max-w-5xl', 'max-w-4xl', 'max-w-6xl');
+        modalContainer.classList.add('max-w-md');
+    }
+
     if (currentTab === 'categories') {
         modalTitle.textContent = 'Add Item Category';
         modalContent.innerHTML = `
@@ -673,12 +681,12 @@ function openAddModal() {
             <form id="add-item-form" class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Name</label>
+                        <label class="block text-sm font-medium text-gray-700">Name <span class="text-red-500">*</span></label>
                         <input type="text" name="name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
                     </div>
                     <div>
-                         <label class="block text-sm font-medium text-gray-700">Category</label>
-                        <select name="categoryId" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                         <label class="block text-sm font-medium text-gray-700">Category <span class="text-red-500">*</span></label>
+                        <select name="categoryId" required class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
                             ${catOptions}
                         </select>
                     </div>
@@ -686,28 +694,12 @@ function openAddModal() {
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">UOM</label>
-                        <input type="text" name="uom" placeholder="e.g. Pcs, Box" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                        <label class="block text-sm font-medium text-gray-700">UoM</label>
+                        <input type="text" name="uom" placeholder="e.g. Pcs, Box, Can" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
                     </div>
-                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Created By</label>
-                        <select name="createdBy" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
-                            <option value="Admin">Admin</option>
-                            <option value="Manager">Manager</option>
-                            <option value="Staff">Staff</option>
-                            <option value="User">User</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Price (₹)</label>
+                        <label class="block text-sm font-medium text-gray-700">Price (₹) <span class="text-red-500">*</span></label>
                         <input type="number" step="0.01" name="price" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Initial Stock</label>
-                        <input type="number" name="stock" value="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
                     </div>
                 </div>
 
@@ -732,59 +724,71 @@ function openAddModal() {
         `;
         document.getElementById('add-item-form').onsubmit = handleAddItem;
     } else {
-        // Stock Entry Modal - Enhanced with multiple items support
+        // Stock Entry Modal - Enhanced with singular row entries
         modalTitle.textContent = 'Add Stock Entry';
 
         // Reset counter for new modal
         stockItemRowCounter = 0;
 
-        modalContent.innerHTML = `
-            <form id="add-stock-form" class="space-y-4">
-                <!-- Header Information -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Invoice Number <span class="text-red-500">*</span></label>
-                        <input type="text" id="stock-invoice-no" placeholder="INV-XXX" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Date <span class="text-red-500">*</span></label>
-                        <input type="date" id="stock-date" required value="${new Date().toISOString().split('T')[0]}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
-                    </div>
-                </div>
+        // Make modal wider for this view
+        if (modalContainer) {
+            modalContainer.classList.remove('max-w-md');
+            modalContainer.classList.add('max-w-5xl');
+        }
 
-                <div class="grid grid-cols-2 gap-4">
+        modalContent.innerHTML = `
+            <form id="add-stock-form" class="space-y-6">
+                <!-- Header Information - Compact 4 Column Grid -->
+                <div class="grid grid-cols-4 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Inventory From <span class="text-red-500">*</span></label>
-                        <select id="stock-inventory-from" required class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Invoice Number <span class="text-red-500">*</span></label>
+                        <input type="text" id="stock-invoice-no" placeholder="INV-XXX" required class="block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Date <span class="text-red-500">*</span></label>
+                        <input type="date" id="stock-date" required value="${new Date().toISOString().split('T')[0]}" class="block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
+                    </div>
+                     <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Inventory From <span class="text-red-500">*</span></label>
+                        <select id="stock-inventory-from" required class="block w-full bg-white border border-gray-300 rounded-md shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
                             <option value="company_warehouse">Company Warehouse</option>
                             <option value="store_purchase">Store Purchase</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Entry Type <span class="text-red-500">*</span></label>
-                        <select id="stock-type" required class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Entry Type <span class="text-red-500">*</span></label>
+                        <select id="stock-type" required class="block w-full bg-white border border-gray-300 rounded-md shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
                             <option value="in">Stock IN (+)</option>
                             <option value="out">Stock OUT (-)</option>
                         </select>
                     </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Extra Note (Optional)</label>
-                    <textarea id="stock-extra-note" rows="2" placeholder="Add any additional notes here..." class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"></textarea>
+                    <div class="col-span-4">
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Extra Note</label>
+                         <input type="text" id="stock-extra-note" placeholder="Add any additional notes here..." class="block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
+                    </div>
                 </div>
 
                 <!-- Items Section -->
-                <div class="border-t pt-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-sm font-semibold text-gray-900">Items</h4>
-                        <button type="button" onclick="addStockItemRow()" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none">
+                <div>
+                   <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-bold text-gray-800">Items List</h4>
+                        <button type="button" onclick="addStockItemRow()" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-[#4a90e2] hover:bg-[#3b7bc4] focus:outline-none shadow-sm">
                             <i data-lucide="plus" class="w-3 h-3 mr-1"></i>
                             Add Item
                         </button>
                     </div>
 
-                    <div id="stock-items-container" class="space-y-3">
+                    <!-- Column Headers -->
+                    <div class="grid grid-cols-12 gap-3 px-2 py-2 bg-gray-100 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider rounded-t-lg">
+                        <div class="col-span-4">Item Name <span class="text-red-500">*</span></div>
+                        <div class="col-span-2">UoM <span class="text-red-500">*</span></div>
+                        <div class="col-span-2">Quantity <span class="text-red-500">*</span></div>
+                        <div class="col-span-2">Unit Price (₹) <span class="text-red-500">*</span></div>
+                        <div class="col-span-1">Total (₹)</div>
+                        <div class="col-span-1 text-center">Action</div>
+                    </div>
+
+                    <div id="stock-items-container" class="border border-t-0 border-gray-200 rounded-b-lg divide-y divide-gray-200 bg-white max-h-[300px] overflow-y-auto">
                         <!-- Items will be added here dynamically -->
                     </div>
                 </div>
@@ -792,7 +796,7 @@ function openAddModal() {
                 <!-- Form Actions -->
                 <div class="flex justify-end gap-3 pt-4 border-t">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
-                    <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4]">Save Entry</button>
+                    <button type="submit" class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4]">Save Entry</button>
                 </div>
             </form>
         `;
@@ -831,33 +835,20 @@ function handleAddItem(e) {
         code: 'GEN-' + Date.now().toString().slice(-4), // Auto-gen code
         name: formData.get('name'),
         categoryId: parseInt(formData.get('categoryId')),
-        uom: formData.get('uom'),
-        createdBy: formData.get('createdBy'),
+        uom: formData.get('uom') || '',
+        createdBy: 'Admin', // Default value since field was removed
         price: parseFloat(formData.get('price')),
-        stock: parseInt(formData.get('stock')),
+        stock: 0, // Default to 0 since Initial Stock field was removed
         tax: 0,
         status: formData.get('status') ? 'active' : 'inactive'
     };
     store.items.push(newItem);
 
-    // Log initial stock
-    if (newItem.stock > 0) {
-        store.stockLogs.unshift({
-            id: Date.now(),
-            date: new Date().toISOString().split('T')[0],
-            invoiceNo: '',
-            itemName: newItem.name,
-            type: 'in',
-            quantity: newItem.stock,
-            unitPrice: newItem.price,
-            total: newItem.stock * newItem.price,
-            reason: 'Opening Stock',
-            extraNote: ''
-        });
-    }
-
     closeModal();
     render();
+
+    // Repopulate category filter after adding new item
+    populateCategoryFilter();
 }
 
 // Helper functions for stock modal - Enhanced for multiple items
@@ -873,48 +864,38 @@ function addStockItemRow() {
     ).join('');
 
     const rowHTML = `
-        <div class="stock-item-row border border-gray-200 rounded-lg p-4 bg-gray-50" data-row-id="${rowId}">
-            <div class="flex items-start justify-between mb-3">
-                <h5 class="text-xs font-medium text-gray-700">Item #${rowId}</h5>
-                <button type="button" onclick="removeStockItemRow(${rowId})" class="text-red-500 hover:text-red-700 focus:outline-none">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
+        <div class="stock-item-row grid grid-cols-12 gap-3 p-2 items-center hover:bg-gray-50" data-row-id="${rowId}">
+            <div class="col-span-4">
+                <select class="item-select block w-full bg-white border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                        onchange="updateItemRowData(${rowId})" required>
+                    ${itemOptions}
+                </select>
             </div>
             
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Select Item <span class="text-red-500">*</span></label>
-                    <select class="item-select block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
-                            onchange="updateItemRowData(${rowId})" required>
-                        ${itemOptions}
-                    </select>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">UoM <span class="text-red-500">*</span></label>
-                        <input type="text" class="item-uom block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
-                               placeholder="e.g. Pcs, Box" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Quantity <span class="text-red-500">*</span></label>
-                        <input type="number" class="item-quantity block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
-                               min="1" required onchange="calculateItemTotal(${rowId})">
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Unit Price (₹) <span class="text-red-500">*</span></label>
-                        <input type="number" class="item-price block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
-                               step="0.01" required onchange="calculateItemTotal(${rowId})">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Total (₹)</label>
-                        <input type="number" class="item-total block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 text-sm font-semibold" 
-                               step="0.01" readonly>
-                    </div>
-                </div>
+            <div class="col-span-2">
+                <input type="text" class="item-uom block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                       placeholder="UoM" required>
+            </div>
+            
+            <div class="col-span-2">
+                <input type="number" class="item-quantity block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                       min="1" required onchange="calculateItemTotal(${rowId})">
+            </div>
+            
+            <div class="col-span-2">
+                <input type="number" class="item-price block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                       step="0.01" required onchange="calculateItemTotal(${rowId})">
+            </div>
+            
+            <div class="col-span-1">
+                <input type="number" class="item-total block w-full border-none bg-transparent text-sm font-semibold text-gray-900 focus:ring-0 p-0 text-right" 
+                       step="0.01" readonly tabindex="-1" value="0.00">
+            </div>
+            
+            <div class="col-span-1 text-center">
+                <button type="button" onclick="removeStockItemRow(${rowId})" class="text-red-500 hover:text-red-700 focus:outline-none p-1 rounded-full hover:bg-red-50 transition-colors" title="Remove Item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
             </div>
         </div>
     `;
@@ -925,6 +906,16 @@ function addStockItemRow() {
     updateItemRowData(rowId);
 
     if (window.lucide) lucide.createIcons();
+}
+
+// Ensure clean close
+function closeModal() {
+    modalOverlay.classList.add('hidden');
+    const modalContainer = document.getElementById('modal-container');
+    if (modalContainer) {
+        modalContainer.classList.remove('max-w-5xl', 'max-w-4xl', 'max-w-6xl');
+        modalContainer.classList.add('max-w-md'); // Reset to default width
+    }
 }
 
 function removeStockItemRow(rowId) {
