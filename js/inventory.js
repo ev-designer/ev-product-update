@@ -757,8 +757,9 @@ function openAddModal() {
         modalContent.innerHTML = `
             <form id="add-stock-form" class="space-y-6">
                 <!-- Header Information - Compact 4 Column Grid -->
+                <!-- Wrapper id for layout -->
                 <div class="grid grid-cols-4 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <div>
+                    <div id="field-invoice-container">
                         <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Invoice Number <span class="text-red-500">*</span></label>
                         <input type="text" id="stock-invoice-no" placeholder="INV-XXX" required class="block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
                     </div>
@@ -766,7 +767,7 @@ function openAddModal() {
                         <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Date <span class="text-red-500">*</span></label>
                         <input type="date" id="stock-date" required value="${new Date().toISOString().split('T')[0]}" class="block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
                     </div>
-                     <div>
+                     <div id="field-inventory-from-container">
                         <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Inventory From <span class="text-red-500">*</span></label>
                         <select id="stock-inventory-from" required class="block w-full bg-white border border-gray-300 rounded-md shadow-sm py-1.5 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm">
                             <option value="company_warehouse">Company Warehouse</option>
@@ -777,13 +778,13 @@ function openAddModal() {
                         <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Entry Type <span class="text-red-500">*</span></label>
                         <div class="flex shadow-sm select-none">
                             <label class="relative flex-1 cursor-pointer group">
-                                <input type="radio" name="entry_type_visual" value="in" checked class="peer sr-only" onchange="document.getElementById('stock-type').value='in'">
+                                <input type="radio" name="entry_type_visual" value="in" checked class="peer sr-only" onchange="toggleStockEntryMode('in')">
                                 <div class="px-2 py-1.5 text-sm text-center border border-gray-300 border-r-0 bg-white text-gray-700 peer-checked:bg-green-50 peer-checked:text-green-700 peer-checked:border-green-500 peer-checked:z-10 hover:bg-gray-50 transition-all font-medium">
                                     Received
                                 </div>
                             </label>
                             <label class="relative flex-1 cursor-pointer group">
-                                <input type="radio" name="entry_type_visual" value="out" class="peer sr-only" onchange="document.getElementById('stock-type').value='out'">
+                                <input type="radio" name="entry_type_visual" value="out" class="peer sr-only" onchange="toggleStockEntryMode('out')">
                                 <div class="px-2 py-1.5 text-sm text-center border border-gray-300 bg-white text-gray-700 peer-checked:bg-red-50 peer-checked:text-red-700 peer-checked:border-red-500 peer-checked:z-10 hover:bg-gray-50 transition-all font-medium">
                                     Consumed
                                 </div>
@@ -804,8 +805,8 @@ function openAddModal() {
                     </div>
 
                     <!-- Column Headers -->
-                    <!-- Column Headers -->
-                    <div class="grid grid-cols-12 gap-3 px-2 py-2 bg-gray-100 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <div id="stock-items-header-row" class="grid grid-cols-12 gap-3 px-2 py-2 bg-gray-100 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                         <!-- Initial Received Header -->
                         <div class="col-span-4">Item Name <span class="text-red-500">*</span></div>
                         <div class="col-span-2">UoM</div>
                         <div class="col-span-2">Quantity <span class="text-red-500">*</span></div>
@@ -888,17 +889,93 @@ function handleAddItem(e) {
 // Helper functions for stock modal - Enhanced for multiple items
 let stockItemRowCounter = 0;
 
+
+function toggleStockEntryMode(mode) {
+    document.getElementById('stock-type').value = mode;
+    const invContainer = document.getElementById('field-invoice-container');
+    const fromContainer = document.getElementById('field-inventory-from-container');
+    const headerRow = document.getElementById('stock-items-header-row');
+    const container = document.getElementById('stock-items-container');
+
+    if (mode === 'out') {
+        if (invContainer) invContainer.classList.add('hidden');
+        if (fromContainer) fromContainer.classList.add('hidden');
+        if (headerRow) {
+            headerRow.innerHTML = `
+                <div class="col-span-4">Item Name <span class="text-red-500">*</span></div>
+                <div class="col-span-2">Available Stock</div>
+                <div class="col-span-2">UoM</div>
+                <div class="col-span-3">Quantity <span class="text-red-500">*</span></div>
+                <div class="col-span-1 text-center"></div>
+            `;
+        }
+    } else {
+        if (invContainer) invContainer.classList.remove('hidden');
+        if (fromContainer) fromContainer.classList.remove('hidden');
+        if (headerRow) {
+            headerRow.innerHTML = `
+                <div class="col-span-4">Item Name <span class="text-red-500">*</span></div>
+                <div class="col-span-2">UoM</div>
+                <div class="col-span-2">Quantity <span class="text-red-500">*</span></div>
+                <div class="col-span-2">Unit Price (₹) <span class="text-red-500">*</span></div>
+                <div class="col-span-1">Total (₹)</div>
+                <div class="col-span-1 text-center"></div>
+            `;
+        }
+    }
+    // Clear and add new row
+    if (container) {
+        container.innerHTML = '';
+        addStockItemRow();
+    }
+}
+
 function addStockItemRow() {
     const container = document.getElementById('stock-items-container');
     if (!container) return;
 
     const rowId = ++stockItemRowCounter;
+    const type = document.getElementById('stock-type').value;
+
     const itemOptions = store.items.map(i =>
-        `<option value="${i.id}" data-price="${i.price}" data-uom="${i.uom || ''}">${i.name} (Stock: ${i.stock})</option>`
+        `<option value="${i.id}" data-price="${i.price}" data-uom="${i.uom || ''}" data-stock="${i.stock}">${i.name} (Stock: ${i.stock})</option>`
     ).join('');
 
-    const rowHTML = `
-        <div class="stock-item-row grid grid-cols-12 gap-3 p-2 items-center hover:bg-gray-50" data-row-id="${rowId}">
+    let fieldsHTML = '';
+
+    if (type === 'out') {
+        // Consumed Layout: Name(4), UoM(2), Stock(2), Qty(3), Action(1)
+        fieldsHTML = `
+            <div class="col-span-4">
+                <select class="item-select block w-full bg-white border border-gray-300 rounded-none shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                        onchange="updateItemRowData(${rowId})" required>
+                    ${itemOptions}
+                </select>
+            </div>
+            
+            <div class="col-span-2">
+                <input type="text" class="item-stock block w-full bg-transparent border-none focus:ring-0 rounded-none py-1.5 px-2 focus:outline-none text-sm text-gray-500 cursor-default" 
+                       placeholder="Stock" readonly>
+            </div>
+
+            <div class="col-span-2">
+                <input type="text" class="item-uom block w-full bg-transparent border-none focus:ring-0 rounded-none py-1.5 px-2 focus:outline-none text-sm text-gray-500 cursor-default" 
+                       placeholder="UoM" readonly>
+            </div>
+            
+            <div class="col-span-3">
+                <input type="number" class="item-quantity block w-full border border-gray-300 rounded-none shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
+                       min="1" required onchange="calculateItemTotal(${rowId})">
+            </div>
+             <div class="col-span-1 text-center">
+                <button type="button" onclick="removeStockItemRow(${rowId})" class="text-red-500 hover:text-red-700 focus:outline-none p-1 rounded-full hover:bg-red-50 transition-colors" title="Remove Item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                </button>
+            </div>
+        `;
+    } else {
+        // Received Layout (Default)
+        fieldsHTML = `
             <div class="col-span-4">
                 <select class="item-select block w-full bg-white border border-gray-300 rounded-none shadow-sm py-1.5 px-2 focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm" 
                         onchange="updateItemRowData(${rowId})" required>
@@ -931,6 +1008,12 @@ function addStockItemRow() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                 </button>
             </div>
+        `;
+    }
+
+    const rowHTML = `
+        <div class="stock-item-row grid grid-cols-12 gap-3 p-2 items-center hover:bg-gray-50" data-row-id="${rowId}">
+            ${fieldsHTML}
         </div>
     `;
 
@@ -965,21 +1048,25 @@ function removeStockItemRow(rowId) {
     }
 }
 
+
 function updateItemRowData(rowId) {
     const row = document.querySelector(`[data-row-id="${rowId}"]`);
     if (!row) return;
 
     const select = row.querySelector('.item-select');
     const uomInput = row.querySelector('.item-uom');
+    const stockInput = row.querySelector('.item-stock');
     const priceInput = row.querySelector('.item-price');
 
-    if (select && uomInput && priceInput) {
+    if (select) {
         const selectedOption = select.options[select.selectedIndex];
-        const price = selectedOption.getAttribute('data-price');
         const uom = selectedOption.getAttribute('data-uom');
+        const stock = selectedOption.getAttribute('data-stock');
+        const price = selectedOption.getAttribute('data-price');
 
-        uomInput.value = uom || '';
-        priceInput.value = price || '0';
+        if (uomInput) uomInput.value = uom || '';
+        if (stockInput) stockInput.value = stock || '0';
+        if (priceInput) priceInput.value = price || '0';
 
         calculateItemTotal(rowId);
     }
@@ -1131,8 +1218,90 @@ function editCategory(id) {
     alert('Edit feature would open modal pre-filled. Simplified for demo.');
 }
 
+
+function handleEditItem(e, id) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const itemIdx = store.items.findIndex(i => i.id === id);
+    if (itemIdx > -1) {
+        store.items[itemIdx] = {
+            ...store.items[itemIdx],
+            name: formData.get('name'),
+            categoryId: parseInt(formData.get('categoryId')),
+            uom: formData.get('uom') || '',
+            price: parseFloat(formData.get('price')),
+            status: formData.get('status') ? 'active' : 'inactive'
+        };
+        closeModal();
+        render();
+        populateCategoryFilter();
+    }
+}
+
 function editItem(id) {
-    alert('Edit feature would open modal pre-filled. Simplified for demo.');
+    const item = store.items.find(i => i.id === id);
+    if (!item) return;
+
+    const modalContainer = document.getElementById('modal-container');
+    modalOverlay.classList.remove('hidden');
+
+    // Reset Modal Width
+    if (modalContainer) {
+        modalContainer.classList.remove('max-w-5xl', 'max-w-4xl', 'max-w-6xl');
+        modalContainer.classList.add('max-w-md');
+    }
+
+    modalTitle.textContent = 'Edit Raw Item Template';
+    const catOptions = store.categories.map(c =>
+        `<option value="${c.id}" ${c.id === item.categoryId ? 'selected' : ''}>${c.name}</option>`
+    ).join('');
+
+    modalContent.innerHTML = `
+        <form id="edit-item-form" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Name <span class="text-red-500">*</span></label>
+                    <input type="text" name="name" value="${item.name}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                </div>
+                <div>
+                     <label class="block text-sm font-medium text-gray-700">Category <span class="text-red-500">*</span></label>
+                    <select name="categoryId" required class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                        ${catOptions}
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">UoM</label>
+                    <input type="text" name="uom" value="${item.uom || ''}" placeholder="e.g. Pcs, Box, Can" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Price (₹) <span class="text-red-500">*</span></label>
+                    <input type="number" step="0.01" name="price" value="${item.price}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <div class="flex items-center">
+                    <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="status" id="edit-item-status-toggle" value="active" ${item.status === 'active' ? 'checked' : ''}
+                            class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                            onchange="document.getElementById('edit-item-status-label').textContent = this.checked ? 'Active' : 'Inactive'">
+                        <label for="edit-item-status-toggle" class="toggle-label block overflow-hidden h-6 rounded-full cursor-pointer"></label>
+                    </div>
+                    <label for="edit-item-status-toggle" class="text-sm text-gray-700" id="edit-item-status-label">${item.status === 'active' ? 'Active' : 'Inactive'}</label>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
+                <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4]">Update</button>
+            </div>
+        </form>
+    `;
+    document.getElementById('edit-item-form').onsubmit = (e) => handleEditItem(e, id);
 }
 
 // Export Functions

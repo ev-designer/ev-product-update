@@ -121,22 +121,37 @@
     <!-- Main Content Area -->
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#f3f4f6]">
         <header class="bg-white border-b border-gray-200 sticky top-0 z-10 transition-shadow">
-            <div class="px-8 py-4">
-                <h1 class="text-2xl font-bold text-gray-800">Timesheet Management</h1>
-                <!-- Tabs -->
-                <div class="flex space-x-8 border-b border-gray-200 mt-4">
-                    <button data-tab="attendance"
-                        class="timesheet-tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-brand-600 border-brand-500">
-                        Attendance
-                    </button>
-                    <button data-tab="reports"
-                        class="timesheet-tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">
-                        History & Reports
-                    </button>
-                    <button data-tab="profile"
-                        class="timesheet-tab-btn pb-4 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">
-                        Staff Profile
-                    </button>
+            <div class="px-8 py-4 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Timesheet Management</h1>
+                    <!-- Tabs -->
+                    <div class="flex space-x-8 mt-4">
+                        <button data-tab="attendance"
+                            class="timesheet-tab-btn pb-2 px-1 border-b-2 font-medium text-sm transition-colors text-brand-600 border-brand-500">
+                            Attendance
+                        </button>
+                        <button data-tab="reports"
+                            class="timesheet-tab-btn pb-2 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">
+                            Reports
+                        </button>
+                        <button data-tab="profile"
+                            class="timesheet-tab-btn pb-2 px-1 border-b-2 font-medium text-sm transition-colors text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">
+                            Staff Profile
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Clock Controls (Top Right) -->
+                <div class="flex items-center gap-4">
+                    <!-- Stopwatch -->
+                    <div class="font-mono text-xl font-bold text-gray-700 bg-gray-100 px-3 py-1 rounded-md border border-gray-200"
+                        id="stopwatch">
+                        00:00:00
+                    </div>
+                    <!-- Action Button Container -->
+                    <div id="header-action-container">
+                        <!-- Injected via JS -->
+                    </div>
                 </div>
             </div>
         </header>
@@ -145,52 +160,30 @@
 
             <!-- 1. Attendance View -->
             <div id="attendance-view" class="space-y-6">
-                <!-- Clock In/Out Card -->
-                <div class="bg-white p-8 border border-gray-200 shadow-sm max-w-2xl mx-auto text-center">
-                    <div class="mb-6">
-                        <span class="text-sm text-gray-500 uppercase tracking-widest font-semibold">Current Time</span>
-                        <div class="text-5xl font-mono text-gray-800 font-bold mt-2" id="live-clock">--:--:--</div>
-                        <div class="text-gray-400 mt-1" id="live-date">...</div>
+                <!-- Attendance History Table -->
+                <div class="bg-white border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                        <h3 class="text-sm font-medium text-gray-700">Attendance History</h3>
+                        <span class="text-xs text-gray-500" id="current-date-display"></span>
                     </div>
-
-                    <div class="mb-8">
-                        <span
-                            class="inline-flex items-center px-3 py-1 border border-gray-200 text-sm font-medium bg-gray-50 text-gray-600"
-                            id="status-badge">
-                            Loading Status...
-                        </span>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div id="action-container">
-                            <!-- Buttons injected by JS -->
-                        </div>
-                        <textarea id="clock-remarks" placeholder="Add remarks (optional)..."
-                            class="w-full max-w-sm mx-auto block border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] text-sm hidden"></textarea>
-                    </div>
-                </div>
-
-                <!-- Today's Logs Hint -->
-                <div class="max-w-4xl mx-auto">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4">Today's Activity</h3>
-                    <div class="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                        <table class="min-w-full divide-y divide-gray-200" id="today-table">
-                            <thead class="bg-gray-50">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="attendance-table">
+                            <thead class="bg-white">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time Out
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Clock In
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Remarks
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Clock
+                                        Out</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total
+                                        Hours</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200 text-sm" id="today-table-body">
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No activity today.</td>
-                                </tr>
+                            <tbody class="bg-white divide-y divide-gray-200 text-sm" id="attendance-table-body">
+                                <!-- JS Populated -->
                             </tbody>
                         </table>
                     </div>
@@ -199,23 +192,75 @@
 
             <!-- 2. Reports View -->
             <div id="reports-view" class="hidden space-y-6">
-                <!-- Filters -->
-                <div class="bg-white p-4 border border-gray-200 shadow-sm flex flex-wrap items-end gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">From Date</label>
-                        <input type="date" id="report-from"
-                            class="block w-full border border-gray-300 shadow-sm py-1.5 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] text-sm">
+                <!-- Stats Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 border border-gray-200 shadow-sm flex flex-col">
+                        <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Total Staff</span>
+                        <span class="text-2xl font-bold text-gray-800 mt-2" id="stat-total-staff">0</span>
                     </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">To Date</label>
-                        <input type="date" id="report-to"
-                            class="block w-full border border-gray-300 shadow-sm py-1.5 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] text-sm">
+                    <div
+                        class="bg-white p-4 border border-gray-200 shadow-sm flex flex-col border-l-4 border-l-green-500">
+                        <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Present Today</span>
+                        <span class="text-2xl font-bold text-gray-800 mt-2" id="stat-present">0</span>
                     </div>
-                    <div>
-                        <button onclick="renderReports()"
-                            class="px-4 py-2 border border-transparent text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4] shadow-sm">
-                            Filter
-                        </button>
+                    <div
+                        class="bg-white p-4 border border-gray-200 shadow-sm flex flex-col border-l-4 border-l-red-500">
+                        <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Absent Today</span>
+                        <span class="text-2xl font-bold text-gray-800 mt-2" id="stat-absent">0</span>
+                    </div>
+                    <div class="bg-white p-4 border border-gray-200 shadow-sm flex flex-col">
+                        <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Total Hours
+                            (Range)</span>
+                        <span class="text-2xl font-bold text-gray-800 mt-2" id="stat-total-hours">00:00</span>
+                    </div>
+                </div>
+
+                <!-- Filters & Actions -->
+                <div
+                    class="bg-white p-4 border border-gray-200 shadow-sm flex flex-col md:flex-row md:items-end gap-4 justify-between">
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">From Date</label>
+                            <input type="date" id="report-from"
+                                class="block w-full border border-gray-300 shadow-sm py-1.5 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">To Date</label>
+                            <input type="date" id="report-to"
+                                class="block w-full border border-gray-300 shadow-sm py-1.5 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">User</label>
+                            <select id="report-user-filter" multiple
+                                class="block w-full min-w-[200px] h-[34px] border border-gray-300 shadow-sm py-0 px-2 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] text-sm">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div>
+                            <button onclick="renderReports()"
+                                class="h-[34px] px-4 border border-transparent text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4] shadow-sm flex items-center gap-2">
+                                <i data-lucide="filter" class="w-4 h-4"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <div class="relative group">
+                            <button
+                                class="h-[34px] px-4 border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 shadow-sm flex items-center gap-2">
+                                <i data-lucide="download" class="w-4 h-4"></i> Export
+                            </button>
+                            <!-- Dropdown -->
+                            <div
+                                class="absolute right-0 bottom-full mb-2 w-40 bg-white border border-gray-200 shadow-lg hidden group-hover:block z-50">
+                                <button onclick="exportReport('pdf')"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">As
+                                    PDF</button>
+                                <button onclick="exportReport('excel')"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">As
+                                    Excel</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -225,20 +270,27 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Staff
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time Out
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total
-                                        Hours</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions
-                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Date</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        User</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        In</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Out</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Total Hours</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status</th>
+                                    <th
+                                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200 text-sm" id="reports-table-body">
@@ -305,7 +357,7 @@
         class="fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center fade-in">
         <div class="relative bg-white shadow-xl w-full max-w-md mx-4 overflow-hidden">
             <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h3 class="text-lg font-medium text-gray-900">Edit Timesheet Entry</h3>
+                <h3 class="text-lg font-medium text-gray-900">Edit Timesheet</h3>
                 <button onclick="closeTimesheetModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
@@ -313,12 +365,31 @@
             <div class="p-6">
                 <form id="edit-entry-form" class="space-y-4">
                     <input type="hidden" id="edit-id">
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Attendance Status</label>
+                        <div class="flex items-center gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status" value="Present"
+                                    class="text-[#4a90e2] focus:ring-[#4a90e2]" onchange="toggleTimeFields(true)"
+                                    checked>
+                                <span class="ml-2 text-sm text-gray-700">Present</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status" value="Absent" class="text-red-500 focus:ring-red-500"
+                                    onchange="toggleTimeFields(false)">
+                                <span class="ml-2 text-sm text-gray-700">Absent</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Date</label>
                         <input type="date" id="edit-date" required
                             class="mt-1 block w-full border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] sm:text-sm">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+
+                    <div id="time-fields-container" class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Clock In</label>
                             <input type="time" id="edit-in"
@@ -330,27 +401,24 @@
                                 class="mt-1 block w-full border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] sm:text-sm">
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Status</label>
-                        <select id="edit-status"
-                            class="mt-1 block w-full border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] sm:text-sm">
-                            <option value="Present">Present</option>
-                            <option value="Absent">Absent</option>
-                            <option value="Late">Late</option>
-                        </select>
-                    </div>
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Remarks</label>
                         <input type="text" id="edit-remarks"
                             class="mt-1 block w-full border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] sm:text-sm">
                     </div>
 
-                    <div class="flex justify-end gap-3 pt-4">
-                        <button type="button" onclick="closeTimesheetModal()"
-                            class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
-                        <button type="submit"
-                            class="px-4 py-2 border border-transparent shadow-sm text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4]">Save
-                            Changes</button>
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-100 mt-4">
+                        <button type="button" onclick="deleteTimesheetEntry()"
+                            class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+                        </button>
+                        <div class="flex gap-3">
+                            <button type="button" onclick="closeTimesheetModal()"
+                                class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
+                            <button type="submit"
+                                class="px-4 py-2 border border-transparent shadow-sm text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4]">Save</button>
+                        </div>
                     </div>
                 </form>
             </div>

@@ -61,6 +61,8 @@ const checklistModalContent = document.getElementById('checklist-modal-content')
 // -- Initialization --
 function initChecklist() {
     setupChecklistTabs();
+    setupReportDropdown();
+    setDefaultReportDates();
     generateDailyCards(); // Simulate generation
     renderChecklist();
 
@@ -243,15 +245,15 @@ function renderTemplatesGrid() {
                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     ${t.shift.map(s => {
             let classes = 'bg-gray-100 text-gray-600 border-gray-200';
-            if (s === 'Morning') classes = 'bg-amber-50 text-amber-700 border-amber-200';
-            if (s === 'Evening') classes = 'bg-indigo-50 text-indigo-700 border-indigo-200';
-            if (s === 'Night') classes = 'bg-slate-100 text-slate-700 border-slate-200';
-            return `<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium ${classes} mr-1 border shadow-sm">${s}</span>`;
+            if (s === 'Morning') classes = 'bg-[#4A90E2] text-white border-[#4A90E2]';
+            if (s === 'Evening') classes = 'bg-[#F9A825] text-white border-[#F9A825]';
+            if (s === 'Night') classes = 'bg-[#1A2B4C] text-white border-[#1A2B4C]';
+            return `<span style="border-radius: 50px !important;" class="inline-flex items-center px-2 py-0.5 text-xs font-medium ${classes} mr-1 border shadow-sm rounded-[50px]">${s}</span>`;
         }).join('')}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                      <span style="border-radius: 50px !important;" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-[50px] ${t.status === 'active' ? 'bg-[#15803d] text-white' : 'bg-gray-300 text-gray-800'}">
-                        ${t.status}
+                        ${t.status.charAt(0).toUpperCase() + t.status.slice(1)}
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -462,37 +464,56 @@ function deleteTemplate(id) {
 }
 
 // -- Reports --
+
+function getDummyReportData() {
+    return [
+        { date: '2025-12-10', task: 'Morning Opening Checklist', shift: 'Morning', status: 'Completed' },
+        { date: '2025-12-10', task: 'Temperature Log', shift: 'Morning', status: 'Completed' },
+        { date: '2025-12-10', task: 'Afternoon Hygiene Check', shift: 'Evening', status: 'Pending' },
+        { date: '2025-12-10', task: 'Closing Procedures', shift: 'Night', status: 'Missed' },
+        { date: '2025-12-11', task: 'Morning Opening Checklist', shift: 'Morning', status: 'Completed' },
+        { date: '2025-12-11', task: 'Safety Audit', shift: 'Evening', status: 'Completed' },
+        { date: '2025-12-11', task: 'Staff Handoff', shift: 'Night', status: 'Pending' },
+    ];
+}
+
+
 function generateReport() {
     const fromDate = document.getElementById('report-from-date').value;
     const toDate = document.getElementById('report-to-date').value;
 
-    // In simulation, we just show all generated cards as if they fall in range
-    // In real app, filter checklistStore.history or fetch from API
+    // Use dummy data for demonstration
+    const data = getDummyReportData();
 
-    const cards = checklistStore.dailyCards; // Mock history
     const tbody = document.getElementById('reports-table-body');
     const noData = document.getElementById('no-report-data');
 
-    if (cards.length === 0) {
+    if (!tbody) return;
+
+    if (data.length === 0) {
         tbody.innerHTML = '';
-        noData.classList.remove('hidden');
+        if (noData) noData.classList.remove('hidden');
         return;
     }
 
-    noData.classList.add('hidden');
-    tbody.innerHTML = cards.map(c => {
-        const doneCount = c.tasks.filter(t => t.isDone).length;
-        const total = c.tasks.length;
-        const status = doneCount === total && total > 0 ?
-            '<span class="text-green-600 font-semibold">Completed</span>' :
-            `<span class="text-orange-500 font-medium">Pending (${doneCount}/${total})</span>`;
+    if (noData) noData.classList.add('hidden');
+
+    tbody.innerHTML = data.map(row => {
+        let statusClass = 'bg-gray-100 text-gray-800';
+        if (row.status === 'Completed') statusClass = 'bg-green-100 text-green-800';
+        if (row.status === 'Pending') statusClass = 'bg-yellow-100 text-yellow-800';
+        if (row.status === 'Missed') statusClass = 'bg-red-100 text-red-800';
 
         return `
             <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${c.date}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${c.title}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${c.shift}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">${status}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.date}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${row.task}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.shift}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                        ${row.status}
+                    </span>
+                </td>
             </tr>
         `;
     }).join('');
@@ -579,4 +600,39 @@ function handleChecklistAction(type) {
     if (type === 'edit') editTemplate(activeActionId);
     if (type === 'delete') deleteTemplate(activeActionId);
     closeActionMenu();
+}
+
+function setupReportDropdown() {
+    const btn = document.getElementById('report-export-btn');
+    const dropdown = document.getElementById('report-export-dropdown');
+
+    if (btn && dropdown) {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    }
+}
+
+function setDefaultReportDates() {
+    const fromEl = document.getElementById('report-from-date');
+    const toEl = document.getElementById('report-to-date');
+
+    if (fromEl && toEl) {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        toEl.value = today.toISOString().split('T')[0];
+        fromEl.value = yesterday.toISOString().split('T')[0];
+
+        // Trigger report generation to show data immediately
+        generateReport();
+    }
 }
