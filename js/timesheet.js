@@ -5,7 +5,13 @@ const timesheetStore = {
         role: 'Administrator',
         email: 'steven@enlightvision.com',
         phone: '+1 (555) 0123-4567',
-        shift: 'Morning'
+        shift: 'Morning',
+        gender: 'Male',
+        photo: null,
+        idProofs: [],
+        joiningDate: '',
+        referenceFrom: '',
+        location: ''
     },
     logs: [
 
@@ -14,7 +20,40 @@ const timesheetStore = {
         { id: 2, date: '2025-12-10', staffName: 'Steven G.', inTime: '09:15', outTime: '17:10', totalHours: '07:55', status: 'Present', remarks: 'Traffic' },
         { id: 3, date: '2025-12-11', staffName: 'Steven G.', inTime: '08:55', outTime: null, totalHours: '-', status: 'Working', remarks: '' }, // Today mock
         { id: 4, date: '2025-12-09', staffName: 'Alice M.', inTime: '08:00', outTime: '16:00', totalHours: '08:00', status: 'Present', remarks: '' },
-        { id: 5, date: '2025-12-10', staffName: 'Bob D.', inTime: '10:00', outTime: '18:00', totalHours: '08:00', status: 'Present', remarks: '' }
+        { id: 5, date: '2025-12-10', staffName: 'Bob D.', inTime: '10:00', outTime: '18:00', totalHours: '08:00', status: 'Present', remarks: '' },
+
+        // New Users
+        { id: 6, date: '2025-12-09', staffName: 'David K.', inTime: '09:30', outTime: '18:30', totalHours: '09:00', status: 'Present', remarks: '' },
+        { id: 7, date: '2025-12-09', staffName: 'Sarah L.', inTime: '08:45', outTime: '17:15', totalHours: '08:30', status: 'Present', remarks: '' },
+        { id: 8, date: '2025-12-09', staffName: 'Michael B.', inTime: '-', outTime: '-', totalHours: '00:00', status: 'Absent', remarks: 'Sick' },
+
+        { id: 9, date: '2025-12-10', staffName: 'David K.', inTime: '09:30', outTime: '18:30', totalHours: '09:00', status: 'Present', remarks: '' },
+        { id: 10, date: '2025-12-10', staffName: 'Sarah L.', inTime: '09:00', outTime: '17:00', totalHours: '08:00', status: 'Present', remarks: '' },
+        { id: 11, date: '2025-12-10', staffName: 'Michael B.', inTime: '10:00', outTime: '16:00', totalHours: '06:00', status: 'Present', remarks: 'Half day' },
+
+        { id: 12, date: '2025-12-11', staffName: 'David K.', inTime: '09:30', outTime: null, totalHours: '-', status: 'Working', remarks: '' },
+        { id: 13, date: '2025-12-11', staffName: 'Sarah L.', inTime: '08:50', outTime: null, totalHours: '-', status: 'Working', remarks: '' },
+        { id: 14, date: '2025-12-11', staffName: 'Michael B.', inTime: '09:05', outTime: null, totalHours: '-', status: 'Working', remarks: '' },
+
+        // Batch 3 - More Users (Emily, James, Linda, Robert, Jennifer)
+        // Dec 10
+        { id: 20, date: '2025-12-10', staffName: 'Emily R.', inTime: '08:55', outTime: '17:05', totalHours: '08:10', status: 'Present', remarks: '' },
+        { id: 21, date: '2025-12-10', staffName: 'James T.', inTime: '09:10', outTime: '17:10', totalHours: '08:00', status: 'Present', remarks: '' },
+        { id: 22, date: '2025-12-10', staffName: 'Linda W.', inTime: '-', outTime: '-', totalHours: '00:00', status: 'Absent', remarks: 'Personal Leave' },
+
+        // Dec 11
+        { id: 30, date: '2025-12-11', staffName: 'Emily R.', inTime: '09:00', outTime: null, totalHours: '-', status: 'Working', remarks: '' },
+        { id: 31, date: '2025-12-11', staffName: 'James T.', inTime: '09:15', outTime: null, totalHours: '-', status: 'Working', remarks: '' },
+        { id: 32, date: '2025-12-11', staffName: 'Linda W.', inTime: '08:30', outTime: null, totalHours: '-', status: 'Working', remarks: '' },
+        { id: 33, date: '2025-12-11', staffName: 'Robert C.', inTime: '10:00', outTime: null, totalHours: '-', status: 'Working', remarks: 'Late Start' },
+        { id: 34, date: '2025-12-11', staffName: 'Jennifer A.', inTime: '08:45', outTime: null, totalHours: '-', status: 'Working', remarks: '' },
+
+        // Dec 15 (Today)
+        { id: 40, date: '2025-12-15', staffName: 'Steven G.', inTime: '10:00', outTime: '10:01', totalHours: '00:01', status: 'Present', remarks: '' },
+        { id: 41, date: '2025-12-15', staffName: 'Steven G.', inTime: '10:05', outTime: null, totalHours: '-', status: 'Working', remarks: '' },
+        { id: 42, date: '2025-12-15', staffName: 'Steven G.', inTime: '10:10', outTime: '10:11', totalHours: '00:01', status: 'Present', remarks: '' },
+        { id: 43, date: '2025-12-15', staffName: 'Steven G.', inTime: '10:15', outTime: '10:16', totalHours: '00:01', status: 'Present', remarks: '' },
+        { id: 44, date: '2025-12-15', staffName: 'Steven G.', inTime: '10:20', outTime: '10:21', totalHours: '00:01', status: 'Present', remarks: '' }
     ],
     currentSession: {
         active: false,
@@ -24,9 +63,11 @@ const timesheetStore = {
     }
 };
 
+let reportState = {}; // Store state: { '2025-12-09': { expanded: boolean, selectedUsers: string[], dropdownOpen: boolean } }
+
 // Check LocalStorage or Init
 function initStore() {
-    const saved = localStorage.getItem('ev_timesheet_store');
+    const saved = localStorage.getItem('ev_timesheet_store_v2');
     if (saved) {
         const parsed = JSON.parse(saved);
         timesheetStore.profile = parsed.profile;
@@ -53,7 +94,7 @@ function initStore() {
 }
 
 function saveStore() {
-    localStorage.setItem('ev_timesheet_store', JSON.stringify(timesheetStore));
+    localStorage.setItem('ev_timesheet_store_v2', JSON.stringify(timesheetStore));
 }
 
 // -- DOM Elements --
@@ -285,121 +326,246 @@ function parseTime(timeStr) {
 
 // -- Reports Section --
 
-// -- Reports Section --
-
 function populateUserFilter() {
-    const select = document.getElementById('report-user-filter');
-    if (!select) return;
-
-    // Get unique users
-    const users = [...new Set(timesheetStore.logs.map(l => l.staffName))].sort();
-
-    // Keep 'All Users' default behavior but clear old opts
-    select.innerHTML = '';
-
-    users.forEach(u => {
-        const opt = document.createElement('option');
-        opt.value = u;
-        opt.textContent = u;
-        select.appendChild(opt);
-    });
+    // No-op: Removed global filter as per design change
 }
+
+// Global click listener for closing dropdowns
+document.addEventListener('click', (e) => {
+    // If click is not inside a dropdown toggle or menu, close all
+    if (!e.target.closest('.user-multiselect-dropdown') && !e.target.closest('.user-multiselect-btn')) {
+        Object.keys(reportState).forEach(date => {
+            if (reportState[date].dropdownOpen) {
+                reportState[date].dropdownOpen = false;
+                renderReports(); // Re-render to close
+            }
+        });
+    }
+});
 
 function renderReports() {
     const fromDateEl = document.getElementById('report-from');
     const toDateEl = document.getElementById('report-to');
-    const userFilterEl = document.getElementById('report-user-filter');
 
-    // Stats Elements
-    const statStaff = document.getElementById('stat-total-staff');
-    const statPresent = document.getElementById('stat-present');
-    const statAbsent = document.getElementById('stat-absent');
-    const statHours = document.getElementById('stat-total-hours');
+    // Stats Elements - REMOVED
+    // const statStaff = document.getElementById('stat-total-staff');
+    // const statPresent = document.getElementById('stat-present');
+    // const statAbsent = document.getElementById('stat-absent');
+    // const statHours = document.getElementById('stat-total-hours');
 
-    // Safety check
     const fromDate = fromDateEl ? fromDateEl.value : null;
     const toDate = toDateEl ? toDateEl.value : null;
-
-    // Handle Multi-Select for User Filter
-    let selectedUsers = [];
-    if (userFilterEl) {
-        selectedUsers = Array.from(userFilterEl.selectedOptions).map(opt => opt.value);
-    }
 
     const tbody = document.getElementById('reports-table-body');
     if (!tbody) return;
 
-    // Filter Logs
-    const filtered = timesheetStore.logs.filter(l => {
+    // 1. Filter Logs by Date Range Only
+    const filteredLogs = timesheetStore.logs.filter(l => {
         const lDate = l.date;
         if (fromDate && lDate < fromDate) return false;
         if (toDate && lDate > toDate) return false;
-        if (selectedUsers.length > 0 && !selectedUsers.includes(l.staffName)) return false;
         return true;
     });
 
-    // Calculate Stats
-    // 1. Total Staff (Unique in filtered range or general? Usually distinct staff in logs)
-    const uniqueStaff = new Set(filtered.map(l => l.staffName));
-    if (statStaff) statStaff.textContent = uniqueStaff.size;
+    // 2. Stats calculation - REMOVED
+    // const uniqueStaff = new Set(filteredLogs.map(l => l.staffName));
+    // if (statStaff) statStaff.textContent = uniqueStaff.size;
+    // ... etc
 
-    // 2. Present/Absent Today (or in range? "Present Today" implies Today, but usually specific to filter results in general reports)
-    // Let's stick to "In Range" counts if filtering, OR strictly Today if labels say "Today". 
-    // The UI says "Present Today"/"Absent Today" - let's calculate for TODAY regardless of filter, 
-    // OR if the user expects these to reflect the report. 
-    // Given the prompt "Present/Absent counts" as general stats, let's make them reactive to the FILTERED VIEW for better utility,
-    // but caption them effectively. I will treat them as "Present (Range)" / "Absent (Range)".
-    // BUT the label is hardcoded HTML "Today". 
-    // Let's calculate strictly for TODAY for the "Today" cards to be accurate to their labels.
+    // 3. Group by Date
+    const grouped = filteredLogs.reduce((acc, log) => {
+        if (!acc[log.date]) acc[log.date] = [];
+        acc[log.date].push(log);
+        return acc;
+    }, {});
 
-    const todayStr = new Date().toISOString().split('T')[0];
-    const todaysLogs = timesheetStore.logs.filter(l => l.date === todayStr);
-    const presentCount = todaysLogs.filter(l => l.status === 'Present' || l.status === 'Working').length;
-    const absentCount = todaysLogs.filter(l => l.status === 'Absent').length;
+    const sortedDates = Object.keys(grouped).sort().reverse();
 
-    if (statPresent) statPresent.textContent = presentCount;
-    if (statAbsent) statAbsent.textContent = absentCount;
-
-    // 3. Total Hours (Range) - based on filtered data
-    let totalMins = 0;
-    filtered.forEach(l => {
-        if (l.totalHours && l.totalHours !== '-') {
-            const [h, m] = l.totalHours.split(':').map(Number);
-            totalMins += (h * 60) + m;
-        }
-    });
-    const totalH = Math.floor(totalMins / 60);
-    const totalM = totalMins % 60;
-    if (statHours) statHours.textContent = `${String(totalH).padStart(2, '0')}:${String(totalM).padStart(2, '0')}`;
-
-
-    // Render Table
-    if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No logs found for this period.</td></tr>';
+    if (sortedDates.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No logs found for this period.</td></tr>';
         return;
     }
 
-    tbody.innerHTML = filtered.map(l => `
-        <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-gray-900">${l.date}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">${l.staffName}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-500">${l.status === 'Absent' ? '-' : (l.inTime || '-')}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-500">${l.status === 'Absent' ? '-' : (l.outTime || '-')}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-500 font-mono">${l.status === 'Absent' ? '00:00' : l.totalHours}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(l.status)}">
-                    ${l.status}
-                </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                 <button onclick="openEditModal(${l.id})" class="text-[#4a90e2] hover:text-[#3b7bc4]">
-                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                 </button>
-            </td>
-        </tr>
-    `).join('');
+    // 4. Render Rows
+    // 4. Render Rows
+    // 4. Render Rows
+    tbody.innerHTML = sortedDates.map(date => {
+        const dayLogs = grouped[date];
+        const dayUsers = [...new Set(dayLogs.map(l => l.staffName))].sort();
+
+        if (!reportState[date]) {
+            reportState[date] = {
+                expanded: false,
+                actionMenuLogId: null,
+                exportMenuOpen: false
+            };
+        }
+
+        const state = reportState[date];
+
+        return `
+            <!-- Main Row -->
+            <tr onclick="toggleAccordion('${date}')" class="hover:bg-gray-50 border-b border-gray-100 transition-colors bg-white cursor-pointer">
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900 font-bold align-top pt-5">${date}</td>
+                
+                <!-- Users Column Hidden -->
+
+                <td class="px-6 py-4 whitespace-nowrap text-right align-top pt-5">
+                    <button class="text-gray-400 hover:text-brand-600 transition-colors bg-transparent border-0 cursor-pointer">
+                        ${state.expanded
+                ? '<i data-lucide="chevron-up" class="w-5 h-5"></i>'
+                : '<i data-lucide="chevron-down" class="w-5 h-5"></i>'}
+                    </button>
+                </td>
+            </tr>
+
+            <!-- Accordion Detail Row -->
+            <tr class="${state.expanded ? '' : 'hidden'} bg-white">
+                <td colspan="3" class="px-0 py-4 border-b border-gray-100">
+                    <div class="px-6 pb-2 flex justify-end relative">
+                         <button onclick="toggleExportMenu('${date}', event)" class="p-2 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors bg-white cursor-pointer" title="Export Options">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                         </button>
+                         
+                         ${state.exportMenuOpen ? `
+                            <div class="absolute right-6 top-12 w-48 bg-white border border-gray-200 shadow-lg rounded-sm z-20 export-menu-dropdown origin-top-right animate-in fade-in zoom-in-95 duration-100" style="margin-top: -10px;">
+                                <div class="px-4 py-3 flex items-center justify-between border-b border-gray-100 bg-gray-50">
+                                    <span class="font-bold text-gray-800 text-sm">Export Options</span>
+                                    <i data-lucide="upload" class="w-4 h-4 text-gray-400"></i>
+                                </div>
+                                <button onclick="exportDateReport('${date}', 'pdf')" class="w-full text-left px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 hover:text-brand-600 transition-colors border-b border-gray-50 flex items-center gap-2 cursor-pointer">
+                                    Export As PDF
+                                </button>
+                                <button onclick="exportDateReport('${date}', 'excel')" class="w-full text-left px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 hover:text-brand-600 transition-colors flex items-center gap-2 cursor-pointer">
+                                    Export As Excel
+                                </button>
+                            </div>
+                         ` : ''}
+                    </div>
+
+                    <div class="px-6">
+                        <div class="bg-white border border-gray-200 rounded-sm">
+                            <table class="min-w-full divide-y divide-gray-200" style="min-width: 100%;">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Staff Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">In</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Out</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Hours</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    ${dayLogs.map(l => `
+                                        <tr class="hover:bg-gray-50 group">
+                                            <td onclick="event.stopPropagation(); openEditModal(${l.id})" class="px-6 py-3 text-sm text-gray-900 font-bold cursor-pointer hover:text-brand-600 transition-colors" title="Click to edit">${l.staffName}</td>
+                                            <td class="px-6 py-3 text-sm text-gray-500">${l.inTime || '-'}</td>
+                                            <td class="px-6 py-3 text-sm text-gray-500">${l.outTime || '-'}</td>
+                                            <td class="px-6 py-3 text-sm text-gray-500 font-mono">${l.totalHours}</td>
+                                            <td class="px-6 py-3 text-sm">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(l.status)}" style="border-radius: 50px !important;">
+                                                    ${l.status}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-3 text-right text-sm">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <button type="button" onclick="event.stopPropagation(); openEditModal(${l.id})" class="text-gray-400 hover:text-brand-600 p-1 transition-colors cursor-pointer" title="Edit">
+                                                        <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                                    </button>
+                                                    <button type="button" onclick="event.stopPropagation(); deleteLogEntry(${l.id})" class="text-gray-400 hover:text-red-600 p-1 transition-colors cursor-pointer" title="Delete">
+                                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
 
     if (window.lucide) lucide.createIcons();
+}
+
+function renderUserDropdown(date, allUsers, state) {
+    const isAll = state.selectedUsers.length === allUsers.length;
+    const count = state.selectedUsers.length;
+    const label = isAll ? 'All Users' : `${count} User${count !== 1 ? 's' : ''}`;
+
+    return `
+        <div class="relative w-full max-w-xs user-multiselect-dropdown">
+            <button type="button" onclick="toggleDropdown('${date}')" 
+                class="user-multiselect-btn w-full bg-white border border-gray-300 text-gray-700 py-1.5 px-3 rounded-md shadow-sm text-left text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 flex justify-between items-center group hover:border-brand-300">
+                <span class="truncate block">${label}</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 group-hover:text-brand-500"></i>
+            </button>
+            
+            <div class="${state.dropdownOpen ? 'block' : 'hidden'} absolute z-50 mt-1 w-full bg-white shadow-xl rounded-md border border-gray-200 max-h-60 overflow-y-auto">
+                 <div class="px-3 py-2 border-b border-gray-100 hover:bg-gray-50 cursor-pointer flex items-center" onclick="toggleSelectAll('${date}', ${!isAll})">
+                    <input type="checkbox" ${isAll ? 'checked' : ''} class="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500 pointer-events-none">
+                    <span class="ml-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Select All</span>
+                </div>
+                
+                ${allUsers.map(u => {
+        const isSelected = state.selectedUsers.includes(u);
+        return `
+                        <div class="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer" onclick="toggleUserSelection('${date}', '${u}')">
+                             <input type="checkbox" ${isSelected ? 'checked' : ''} class="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500 pointer-events-none">
+                             <span class="ml-2 text-sm text-gray-700">${u}</span>
+                        </div>
+                    `;
+    }).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function toggleDropdown(date) {
+    if (reportState[date]) {
+        // Toggle
+        reportState[date].dropdownOpen = !reportState[date].dropdownOpen;
+        renderReports();
+    }
+}
+
+function toggleAccordion(date) {
+    if (reportState[date]) {
+        reportState[date].expanded = !reportState[date].expanded;
+        renderReports();
+    }
+}
+
+function toggleUserSelection(date, user) {
+    if (reportState[date]) {
+        const idx = reportState[date].selectedUsers.indexOf(user);
+        if (idx > -1) {
+            reportState[date].selectedUsers.splice(idx, 1);
+        } else {
+            reportState[date].selectedUsers.push(user);
+        }
+        reportState[date].expanded = true;
+        renderReports();
+    }
+}
+
+function toggleSelectAll(date, shouldSelectAll) {
+    if (reportState[date]) {
+        const filteredLogs = timesheetStore.logs.filter(l => l.date === date);
+        const allUsers = [...new Set(filteredLogs.map(l => l.staffName))];
+
+        if (shouldSelectAll) {
+            reportState[date].selectedUsers = [...allUsers];
+            reportState[date].expanded = true;
+        } else {
+            reportState[date].selectedUsers = [];
+        }
+        renderReports();
+    }
 }
 
 function exportReport(type) {
@@ -408,45 +574,214 @@ function exportReport(type) {
     // In real app, generate Blob/CSV or use jspdf/sheetjs
 }
 
+function exportDateReport(date, type) {
+    if (!type) {
+        alert(`Exporting ${date}...`);
+        return;
+    }
+    alert(`Exporting report for date: ${date} as ${type.toUpperCase()}...`);
+    // Close menu
+    if (reportState[date]) {
+        reportState[date].exportMenuOpen = false;
+        renderReports();
+    }
+}
+
+function toggleExportMenu(date, event) {
+    if (event) event.stopPropagation();
+    const state = reportState[date];
+    // Close other export menus?
+    Object.keys(reportState).forEach(k => {
+        if (k !== date) reportState[k].exportMenuOpen = false;
+    });
+
+    state.exportMenuOpen = !state.exportMenuOpen;
+    renderReports();
+}
+
+function toggleActionMenu(date, logId, event) {
+    if (event) event.stopPropagation();
+
+    // Toggle logic: if already open, close it. If different, open new.
+    const state = reportState[date];
+    if (state.actionMenuLogId === logId) {
+        state.actionMenuLogId = null;
+    } else {
+        // Close any other open menus in other dates (optional, but good UX)
+        Object.keys(reportState).forEach(k => reportState[k].actionMenuLogId = null);
+        state.actionMenuLogId = logId;
+    }
+    renderReports();
+}
+
+function deleteLogEntry(id) {
+    if (confirm('Are you sure you want to delete this timesheet entry?')) {
+        // Find and remove
+        const idx = timesheetStore.logs.findIndex(l => l.id === id);
+        if (idx !== -1) {
+            timesheetStore.logs.splice(idx, 1);
+            saveStore();
+            renderReports(); // Re-render to show updates
+            // Also update stats if needed, renderReports does it.
+        }
+    }
+}
+
+// Global click to close action menus
+document.addEventListener('click', (e) => {
+    // Close Action Menu
+    if (!e.target.closest('button[onclick^="toggleActionMenu"]') && !e.target.closest('.action-menu-dropdown')) {
+        let changed = false;
+        if (typeof reportState !== 'undefined') {
+            Object.keys(reportState).forEach(k => {
+                if (reportState[k].actionMenuLogId !== null) {
+                    reportState[k].actionMenuLogId = null;
+                    changed = true;
+                }
+            });
+            if (changed) renderReports();
+        }
+    }
+
+    // Close Export Menu
+    if (!e.target.closest('button[onclick^="toggleExportMenu"]') && !e.target.closest('.export-menu-dropdown')) {
+        let changed = false;
+        if (typeof reportState !== 'undefined') {
+            Object.keys(reportState).forEach(k => {
+                if (reportState[k].exportMenuOpen) {
+                    reportState[k].exportMenuOpen = false;
+                    changed = true;
+                }
+            });
+            if (changed) renderReports();
+        }
+    }
+});
+
 function getStatusClass(status) {
     switch (status) {
-        case 'Present': return 'bg-green-100 text-green-800';
-        case 'Absent': return 'bg-red-100 text-red-800';
-        case 'Late': return 'bg-yellow-100 text-yellow-800';
-        case 'Working': return 'bg-blue-100 text-blue-800';
-        default: return 'bg-gray-100 text-gray-800';
+        case 'Present': return 'bg-[#15803d] text-white';
+        case 'Absent': return 'bg-red-700 text-white';
+        case 'Late': return 'bg-yellow-600 text-white';
+        case 'Working': return 'bg-blue-600 text-white';
+        case 'Half Day': return 'bg-orange-500 text-white';
+        default: return 'bg-gray-300 text-gray-800';
     }
 }
 
 // -- Profile Section --
-
 function renderProfile() {
     const p = timesheetStore.profile;
     const els = {
         name: document.getElementById('profile-name'),
-        role: document.getElementById('profile-role'),
         email: document.getElementById('profile-email'),
         phone: document.getElementById('profile-phone'),
-        shift: document.getElementById('profile-shift')
+        role: document.getElementById('profile-role'),
+        shiftInput: document.getElementById('profile-shift-input'),
+        joiningDate: document.getElementById('profile-joining-date'),
+        location: document.getElementById('profile-location'),
+        reference: document.getElementById('profile-reference')
     };
 
-    if (els.name) els.name.value = p.name;
-    if (els.role) els.role.value = p.role;
-    if (els.email) els.email.value = p.email;
-    if (els.phone) els.phone.value = p.phone;
-    if (els.shift) els.shift.value = p.shift;
+    // Basic fields
+    if (els.name) els.name.value = p.name || '';
+    if (els.email) els.email.value = p.email || '';
+    if (els.phone) els.phone.value = p.phone || '';
+    if (els.role) els.role.value = p.role || '';
+    if (els.joiningDate) els.joiningDate.value = p.joiningDate || '';
+    if (els.location) els.location.value = p.location || '';
+    if (els.reference) els.reference.value = p.referenceFrom || '';
+
+    // Gender
+    if (p.gender) {
+        const genderInput = document.getElementById('profile-gender-input');
+        if (genderInput) genderInput.value = p.gender;
+        selectGender(p.gender, false);
+    }
+
+    // Shift
+    if (els.shiftInput) {
+        els.shiftInput.value = p.shift;
+        selectShift(p.shift, false);
+    }
+
+    // Photo
+    if (p.photo) {
+        currentPhoto = p.photo;
+        document.getElementById('photo-preview-img').src = p.photo;
+        document.getElementById('photo-placeholder').classList.add('hidden');
+        document.getElementById('photo-preview').classList.remove('hidden');
+    } else {
+        removePhoto();
+    }
+
+    // ID Proofs
+    if (p.idProofs && p.idProofs.length > 0) {
+        idProofFiles = p.idProofs;
+        renderIDProofList();
+    } else {
+        idProofFiles = [];
+        renderIDProofList();
+    }
+
+    if (window.lucide) lucide.createIcons();
+}
+
+function selectShift(shift, updateInput = true) {
+    if (updateInput) {
+        const input = document.getElementById('profile-shift-input');
+        if (input) input.value = shift;
+    }
+
+    // Visual Update
+    const buttons = document.querySelectorAll('.shift-btn');
+    buttons.forEach(btn => {
+        if (btn.dataset.value === shift) {
+            btn.classList.add('bg-blue-50', 'text-[#4a90e2]', 'border-blue-200');
+            btn.classList.remove('bg-white', 'text-gray-600', 'hover:bg-gray-50');
+        } else {
+            btn.classList.remove('bg-blue-50', 'text-[#4a90e2]', 'border-blue-200');
+            btn.classList.add('bg-white', 'text-gray-600', 'hover:bg-gray-50');
+        }
+    });
+}
+
+function selectGender(gender, updateInput = true) {
+    if (updateInput) {
+        const input = document.getElementById('profile-gender-input');
+        if (input) input.value = gender;
+    }
+
+    const buttons = document.querySelectorAll('.gender-btn');
+    buttons.forEach(btn => {
+        if (btn.dataset.value === gender) {
+            btn.classList.add('bg-blue-50', 'text-[#4a90e2]', 'border-blue-200');
+            btn.classList.remove('bg-white', 'text-gray-600', 'hover:bg-gray-50');
+        } else {
+            btn.classList.remove('bg-blue-50', 'text-[#4a90e2]', 'border-blue-200');
+            btn.classList.add('bg-white', 'text-gray-600', 'hover:bg-gray-50');
+        }
+    });
 }
 
 function handleProfileUpdate(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
+
     timesheetStore.profile = {
         name: formData.get('name'),
         role: formData.get('role'),
         email: formData.get('email'),
         phone: formData.get('phone'),
-        shift: formData.get('shift')
+        shift: formData.get('shift'),
+        gender: formData.get('gender'),
+        photo: currentPhoto, // From upload handler
+        idProofs: idProofFiles, // From upload handler
+        joiningDate: formData.get('joiningDate'),
+        referenceFrom: formData.get('referenceFrom'),
+        location: formData.get('location')
     };
+
     saveStore();
     alert('Profile updated successfully!');
 }
@@ -456,10 +791,27 @@ function handleProfileUpdate(e) {
 const modal = document.getElementById('timesheet-modal-overlay');
 
 function openEditModal(id) {
+    console.log('openEditModal called with id:', id);
     const log = timesheetStore.logs.find(l => l.id === id);
-    if (!log) return;
+    if (!log) {
+        console.error('Log entry not found for id:', id);
+        return;
+    }
 
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+        modal.classList.remove('hidden');
+        console.log('Modal opened');
+
+        // Add click-outside-to-close handler with a small delay to avoid catching the same click
+        setTimeout(() => {
+            modal.onclick = function (e) {
+                if (e.target === modal) {
+                    console.log('Clicked outside modal, closing');
+                    closeTimesheetModal();
+                }
+            };
+        }, 100);
+    }
 
     // Populate Fields
     document.getElementById('edit-id').value = log.id;
@@ -493,7 +845,11 @@ function toggleTimeFields(isPresent) {
 }
 
 function closeTimesheetModal() {
-    if (modal) modal.classList.add('hidden');
+    console.log('closeTimesheetModal called');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.onclick = null; // Remove the click handler
+    }
 }
 
 

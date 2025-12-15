@@ -192,105 +192,37 @@
 
             <!-- 2. Reports View -->
             <div id="reports-view" class="hidden space-y-6">
-                <!-- Stats Summary -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-4 border border-gray-200 shadow-sm flex flex-col">
-                        <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Total Staff</span>
-                        <span class="text-2xl font-bold text-gray-800 mt-2" id="stat-total-staff">0</span>
-                    </div>
-                    <div
-                        class="bg-white p-4 border border-gray-200 shadow-sm flex flex-col border-l-4 border-l-green-500">
-                        <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Present Today</span>
-                        <span class="text-2xl font-bold text-gray-800 mt-2" id="stat-present">0</span>
-                    </div>
-                    <div
-                        class="bg-white p-4 border border-gray-200 shadow-sm flex flex-col border-l-4 border-l-red-500">
-                        <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Absent Today</span>
-                        <span class="text-2xl font-bold text-gray-800 mt-2" id="stat-absent">0</span>
-                    </div>
-                    <div class="bg-white p-4 border border-gray-200 shadow-sm flex flex-col">
-                        <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Total Hours
-                            (Range)</span>
-                        <span class="text-2xl font-bold text-gray-800 mt-2" id="stat-total-hours">00:00</span>
-                    </div>
-                </div>
+                <!-- Stats Summary - REMOVED -->
 
-                <!-- Filters & Actions -->
-                <div
-                    class="bg-white p-4 border border-gray-200 shadow-sm flex flex-col md:flex-row md:items-end gap-4 justify-between">
-                    <div class="flex flex-wrap items-end gap-4">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">From Date</label>
+                <!-- Filters Only (Date Range) - Clean Card -->
+                <div class="bg-gray-50 p-4 border border-gray-200 w-full rounded-sm mb-4">
+                    <div class="flex items-end gap-3 w-full md:w-[30%] ml-auto">
+                        <div class="flex-1">
+                            <label class="block text-xs font-semibold text-gray-500 mb-1.5">From Date</label>
                             <input type="date" id="report-from"
-                                class="block w-full border border-gray-300 shadow-sm py-1.5 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] text-sm">
+                                class="block w-full border border-gray-300 py-2.5 px-3 text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 rounded shadow-sm">
                         </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">To Date</label>
+                        <div class="flex-1">
+                            <label class="block text-xs font-semibold text-gray-500 mb-1.5">To Date</label>
                             <input type="date" id="report-to"
-                                class="block w-full border border-gray-300 shadow-sm py-1.5 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">User</label>
-                            <select id="report-user-filter" multiple
-                                class="block w-full min-w-[200px] h-[34px] border border-gray-300 shadow-sm py-0 px-2 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] text-sm">
-                                <!-- Populated by JS -->
-                            </select>
-                        </div>
-                        <div>
-                            <button onclick="renderReports()"
-                                class="h-[34px] px-4 border border-transparent text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4] shadow-sm flex items-center gap-2">
-                                <i data-lucide="filter" class="w-4 h-4"></i> Filter
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <div class="relative group">
-                            <button
-                                class="h-[34px] px-4 border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 shadow-sm flex items-center gap-2">
-                                <i data-lucide="download" class="w-4 h-4"></i> Export
-                            </button>
-                            <!-- Dropdown -->
-                            <div
-                                class="absolute right-0 bottom-full mb-2 w-40 bg-white border border-gray-200 shadow-lg hidden group-hover:block z-50">
-                                <button onclick="exportReport('pdf')"
-                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">As
-                                    PDF</button>
-                                <button onclick="exportReport('excel')"
-                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">As
-                                    Excel</button>
-                            </div>
+                                class="block w-full border border-gray-300 py-2.5 px-3 text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 rounded shadow-sm">
                         </div>
                     </div>
                 </div>
 
-                <!-- Table -->
-                <div class="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto">
+                <!-- Table Container -->
+                <div class="bg-white border border-gray-200 shadow-sm min-h-[400px]">
+                    <div class="">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-1/6">
                                         Date</th>
+                                    <!-- Users column hidden -->
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        User</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        In</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Out</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Total Hours</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status</th>
-                                    <th
-                                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions</th>
+                                        class="px-6 py-4 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider w-auto">
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200 text-sm" id="reports-table-body">
@@ -302,46 +234,214 @@
             </div>
 
             <!-- 3. Profile View -->
-            <div id="profile-view" class="hidden max-w-3xl mx-auto">
-                <div class="bg-white border border-gray-200 shadow-sm p-8">
-                    <h2 class="text-xl font-bold text-gray-800 mb-6 pb-4 border-b border-gray-100">Staff Profile</h2>
+            <div id="profile-view" class="hidden max-w-full mx-auto">
+                <div class="bg-transparent p-0">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-8">Staff Profile</h2>
 
-                    <form id="profile-form" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Full Name</label>
-                                <input type="text" name="name" id="profile-name"
-                                    class="mt-1 block w-full border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] sm:text-sm">
+                    <form id="profile-form">
+                        <!-- Single Grid for Alignment -->
+                        <div
+                            class="grid grid-cols-1 md:grid-cols-[minmax(340px,1fr)_minmax(340px,1fr)] gap-y-8 md:gap-x-24 max-w-5xl">
+                            <!-- Left Column -->
+                            <div class="space-y-6">
+                                <!-- Full Name -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">Full Name<span
+                                            class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <input type="text" name="name" id="profile-name" value="Steven G."
+                                            class="block w-full border border-gray-300 rounded shadow-sm py-3 px-4 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 text-gray-700">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                            <i data-lucide="x-circle"
+                                                class="h-5 w-5 text-gray-300 fill-current hover:text-gray-400 cursor-pointer"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">Email <span
+                                            class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <input type="email" name="email" id="profile-email"
+                                            value="steven@enlightvision.com"
+                                            class="block w-full border border-gray-300 rounded shadow-sm py-3 px-4 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 text-gray-700">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                            <i data-lucide="x-circle"
+                                                class="h-5 w-5 text-gray-300 fill-current hover:text-gray-400 cursor-pointer"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Preferred Shift -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">Preferred
+                                        Shift <span class="text-red-500">*</span></label>
+                                    <div class="flex border border-gray-300 rounded overflow-hidden w-fit shadow-sm">
+                                        <input type="hidden" name="shift" id="profile-shift-input" value="Morning">
+                                        <button type="button"
+                                            class="shift-btn px-6 py-2.5 text-sm font-medium text-[#4a90e2] bg-blue-50 border-r border-gray-200 focus:outline-none transition-colors"
+                                            data-value="Morning" onclick="selectShift('Morning')">Morning</button>
+                                        <button type="button"
+                                            class="shift-btn px-6 py-2.5 text-sm font-medium text-gray-600 bg-white border-r border-gray-200 hover:bg-gray-50 focus:outline-none transition-colors"
+                                            data-value="Evening" onclick="selectShift('Evening')">Evening</button>
+                                        <button type="button"
+                                            class="shift-btn px-6 py-2.5 text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 focus:outline-none transition-colors"
+                                            data-value="Night" onclick="selectShift('Night')">Night</button>
+                                    </div>
+                                </div>
+
+                                <!-- Joining Date -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">Joining
+                                        Date</label>
+                                    <input type="date" name="joiningDate" id="profile-joining-date"
+                                        class="block w-full border border-gray-300 rounded shadow-sm py-3 px-4 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 text-gray-700">
+                                </div>
+
+                                <!-- Location/Franchise -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">Location/Franchise</label>
+                                    <div class="relative">
+                                        <select name="location" id="profile-location"
+                                            class="block w-full border border-gray-300 rounded shadow-sm py-3 px-4 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 text-gray-700">
+                                            <option value="">Select Location</option>
+                                            <option value="Main Office">Main Office</option>
+                                            <option value="Branch 1">Branch 1</option>
+                                            <option value="Branch 2">Branch 2</option>
+                                            <option value="Remote">Remote</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Reference From -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">Reference From
+                                        <span class="text-xs text-gray-400">(Optional)</span></label>
+                                    <div class="relative">
+                                        <input type="text" name="referenceFrom" id="profile-reference"
+                                            placeholder="Enter reference name"
+                                            class="block w-full border border-gray-300 rounded shadow-sm py-3 px-4 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 text-gray-700 placeholder-gray-400">
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Role</label>
-                                <input type="text" name="role" id="profile-role"
-                                    class="mt-1 block w-full border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] sm:text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Email</label>
-                                <input type="email" name="email" id="profile-email"
-                                    class="mt-1 block w-full border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] sm:text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Phone</label>
-                                <input type="text" name="phone" id="profile-phone"
-                                    class="mt-1 block w-full border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] sm:text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Preferred Shift</label>
-                                <select name="shift" id="profile-shift"
-                                    class="mt-1 block w-full border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4a90e2] focus:border-[#4a90e2] sm:text-sm">
-                                    <option value="Morning">Morning</option>
-                                    <option value="Evening">Evening</option>
-                                    <option value="Night">Night</option>
-                                </select>
+
+                            <!-- Right Column -->
+                            <div class="space-y-6">
+                                <!-- Role -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">Role</label>
+                                    <div class="relative">
+                                        <input type="text" name="role" id="profile-role" placeholder="Select Tax"
+                                            class="block w-full border border-gray-300 rounded shadow-sm py-3 px-4 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 text-gray-700 placeholder-gray-400">
+                                    </div>
+                                </div>
+
+                                <!-- Phone -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">Phone <span
+                                            class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <input type="text" name="phone" id="profile-phone" value="+1 (555) 0123-4567"
+                                            class="block w-full border border-gray-300 rounded shadow-sm py-3 px-4 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 text-gray-700">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                            <i data-lucide="x-circle"
+                                                class="h-5 w-5 text-gray-300 fill-current hover:text-gray-400 cursor-pointer"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Gender -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">Gender</label>
+                                    <div class="flex border border-gray-300 rounded overflow-hidden w-fit shadow-sm">
+                                        <input type="hidden" name="gender" id="profile-gender-input" value="Male">
+                                        <button type="button"
+                                            class="gender-btn px-6 py-2.5 text-sm font-medium text-[#4a90e2] bg-blue-50 border-r border-gray-200 focus:outline-none transition-colors"
+                                            data-value="Male" onclick="selectGender('Male')">Male</button>
+                                        <button type="button"
+                                            class="gender-btn px-6 py-2.5 text-sm font-medium text-gray-600 bg-white border-r border-gray-200 hover:bg-gray-50 focus:outline-none transition-colors"
+                                            data-value="Female" onclick="selectGender('Female')">Female</button>
+                                        <button type="button"
+                                            class="gender-btn px-6 py-2.5 text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 focus:outline-none transition-colors"
+                                            data-value="Other" onclick="selectGender('Other')">Other</button>
+                                    </div>
+                                </div>
+
+                                <!-- Photo Upload -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">Photo</label>
+                                    <div
+                                        class="border border-gray-300 rounded bg-gray-50 p-6 hover:border-gray-400 transition-colors">
+                                        <input type="file" id="profile-photo"
+                                            accept="image/jpeg,image/jpg,image/png,image/webp" class="hidden"
+                                            onchange="handlePhotoUpload(event)">
+                                        <div id="photo-preview-container" class="text-center">
+                                            <div id="photo-placeholder" class="flex flex-col items-center">
+                                                <div
+                                                    class="w-24 h-24 bg-gray-200 rounded flex items-center justify-center mb-3">
+                                                    <i data-lucide="image" class="w-12 h-12 text-gray-400"></i>
+                                                </div>
+                                                <button type="button"
+                                                    onclick="document.getElementById('profile-photo').click()"
+                                                    class="mb-2 flex items-center gap-2 text-gray-600 hover:text-brand-600 transition-colors">
+                                                    <i data-lucide="upload" class="w-4 h-4"></i>
+                                                    <span class="text-sm font-medium">Upload</span>
+                                                </button>
+                                                <p class="text-xs text-gray-400">Supported formats: jpeg,
+                                                    jpg, png,</p>
+                                                <p class="text-xs text-gray-400">jpg & webp (max size: 5
+                                                    Mb.)</p>
+                                            </div>
+                                            <div id="photo-preview" class="hidden">
+                                                <img id="photo-preview-img"
+                                                    class="w-32 h-32 object-cover rounded-lg mx-auto mb-2" />
+                                                <button type="button" onclick="removePhoto()"
+                                                    class="text-sm text-red-600 hover:text-red-800 font-medium">Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ID Proof Upload -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 mb-2">ID Proof
+                                        Documents</label>
+                                    <div
+                                        class="border border-gray-300 rounded bg-gray-50 p-6 hover:border-gray-400 transition-colors">
+                                        <input type="file" id="profile-id-proof"
+                                            accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf,.doc,.docx"
+                                            multiple class="hidden" onchange="handleIDProofUpload(event)">
+                                        <div class="text-center mb-3">
+                                            <div
+                                                class="w-24 h-24 bg-gray-200 rounded flex items-center justify-center mx-auto mb-3">
+                                                <i data-lucide="file-text" class="w-12 h-12 text-gray-400"></i>
+                                            </div>
+                                            <button type="button"
+                                                onclick="document.getElementById('profile-id-proof').click()"
+                                                class="mb-2 flex items-center gap-2 mx-auto text-gray-600 hover:text-brand-600 transition-colors">
+                                                <i data-lucide="upload" class="w-4 h-4"></i>
+                                                <span class="text-sm font-medium">Upload</span>
+                                            </button>
+                                            <p class="text-xs text-gray-400">Supported formats: jpeg, jpg,
+                                                png &</p>
+                                            <p class="text-xs text-gray-400">webp, pdf, doc & docx (max
+                                                size: 5 Mb.)</p>
+                                        </div>
+                                        <div id="id-proof-list" class="space-y-2"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="flex justify-end pt-4">
+
+                        <div class="flex justify-end gap-3 pt-32 border-t-0 mt-auto pb-8">
+                            <button type="button" onclick="renderProfile()"
+                                class="px-6 py-2.5 border border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                Cancel
+                            </button>
                             <button type="submit"
-                                class="px-6 py-2 border border-transparent text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4] shadow-sm">
+                                class="px-8 py-2.5 border border-transparent rounded shadow-sm text-sm font-medium text-white bg-[#4a90e2] hover:bg-[#3b7bc4] transition-colors">
                                 Update Profile
                             </button>
                         </div>
@@ -355,15 +455,16 @@
     <!-- Edit Entry Modal -->
     <div id="timesheet-modal-overlay"
         class="fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center fade-in">
-        <div class="relative bg-white shadow-xl w-full max-w-md mx-4 overflow-hidden">
+        <div onclick="event.stopPropagation()" class="relative bg-white shadow-xl w-full max-w-md mx-4 overflow-hidden">
             <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
                 <h3 class="text-lg font-medium text-gray-900">Edit Timesheet</h3>
-                <button onclick="closeTimesheetModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                <button type="button" onclick="closeTimesheetModal()"
+                    class="text-gray-400 hover:text-gray-500 focus:outline-none">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <div class="p-6">
-                <form id="edit-entry-form" class="space-y-4">
+                <form id="edit-entry-form" onsubmit="handleEntryUpdate(event); return false;" class="space-y-4">
                     <input type="hidden" id="edit-id">
 
                     <div class="mb-4">
@@ -425,6 +526,7 @@
         </div>
     </div>
 
+    <script src="js/timesheet-uploads.js"></script>
     <script src="js/timesheet.js"></script>
 </body>
 
